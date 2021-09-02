@@ -72,3 +72,26 @@ void utility::scale(image &src, image &tgt, float ratio)
 		}
 	}
 }
+
+/*-----------------------------------------------------------------------**/
+void utility::changeBrightness(image &src, image &tgt, int treshold, int value1, int value2)
+{
+	cout << "changeBrightness" << endl;
+	tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
+	for (int i = 0; i < src.getNumberOfRows(); i++)
+	{
+		for (int j = 0; j < src.getNumberOfColumns(); j++)
+		{
+			if(src.getPixel(i,j) > treshold)
+			{
+				// cout << "inja" << endl;
+				tgt.setPixel(i,j,checkValue(src.getPixel(i,j) + value1)); 
+			}
+			else if(src.getPixel(i,j) < treshold)
+			{
+				// cout << "inja2" << endl;
+				tgt.setPixel(i,j,checkValue(src.getPixel(i,j) - value2)); 
+			}
+		}
+	}
+}

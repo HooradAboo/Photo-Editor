@@ -62,6 +62,14 @@ int main (int argc, char** argv)
 			utility::scale(src,tgt,atof(pch));
 		}
 
+		else if (strcmp(pch,"changeBrightness")==0) {
+			/* Image brightness */
+			char* T = strtok(NULL, " ");
+			char* V1 = strtok(NULL, " ");
+			char* V2 = strtok(NULL, " ");
+			utility::changeBrightness(src,tgt,atof(T),atof(V1),atof(V2));
+		}
+
 		else {
 			printf("No function: %s\n", pch);
 			continue;

@@ -15,6 +15,8 @@ class utility
 		static void addGrey(image &src, image &tgt, int value);
 		static void binarize(image &src, image &tgt, int threshold);
 		static void scale(image &src, image &tgt, float ratio);
+		static void changeBrightness(image &src, image &tgt, int treshold, int value1, int value2);
+
 };
 
 #endif
