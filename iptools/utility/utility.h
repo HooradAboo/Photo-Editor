@@ -20,9 +20,9 @@ public:
     static std::string intToString(int number);
     static int checkValue(int value);
     static void addGrey(image &src, image &tgt, int value, roi rect);
-    static void binarize(image &src, image &tgt, int threshold);
+    static void binarize(image &src, image &tgt, int threshold, roi rect);
     static void scale(image &src, image &tgt, float ratio);
-    static void adjustBrightness(image &src, image &tgt, int treshold, int value1, int value2);
+    static void adjustBrightness(image &src, image &tgt, int treshold, int value1, int value2, roi rect);
 };
 
 #endif

@@ -45,17 +45,22 @@ int main(int argc, char **argv) {
         pch = strtok(NULL, " ");
         if (strcmp(pch, "add") == 0) {
             /* Add Intensity */
+            pch = strtok(NULL, " ");
             roi rect;
             rect.x = atoi(strtok(NULL, " "));
             rect.y = atoi(strtok(NULL, " "));
             rect.sx = atoi(strtok(NULL, " "));
             rect.sy = atoi(strtok(NULL, " "));
-            pch = strtok(NULL, " ");
-            utility::addGrey(src, tgt, rect, atoi(pch));
+            utility::addGrey(src, tgt, atoi(pch), rect);
         } else if (strcmp(pch, "binarize") == 0) {
             /* Thresholding */
             pch = strtok(NULL, " ");
-            utility::binarize(src, tgt, atoi(pch));
+            roi rect;
+            rect.x = atoi(strtok(NULL, " "));
+            rect.y = atoi(strtok(NULL, " "));
+            rect.sx = atoi(strtok(NULL, " "));
+            rect.sy = atoi(strtok(NULL, " "));
+            utility::binarize(src, tgt, atoi(pch), rect);
         } else if (strcmp(pch, "scale") == 0) {
             /* Image scaling */
             pch = strtok(NULL, " ");
@@ -65,7 +70,12 @@ int main(int argc, char **argv) {
             char *T = strtok(NULL, " ");
             char *V1 = strtok(NULL, " ");
             char *V2 = strtok(NULL, " ");
-            utility::adjustBrightness(src, tgt, atof(T), atof(V1), atof(V2));
+            roi rect;
+            rect.x = atoi(strtok(NULL, " "));
+            rect.y = atoi(strtok(NULL, " "));
+            rect.sx = atoi(strtok(NULL, " "));
+            rect.sy = atoi(strtok(NULL, " "));
+            utility::adjustBrightness(src, tgt, atof(T), atof(V1), atof(V2), rect);
         } else {
             printf("No function: %s\n", pch);
             continue;

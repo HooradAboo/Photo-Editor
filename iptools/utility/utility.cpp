@@ -19,6 +19,7 @@ int utility::checkValue(int value) {
 
 /*-----------------------------------------------------------------------**/
 void utility::addGrey(image &src, image &tgt, int value, roi rect) {
+    // Make a copy of origin image to target image
     tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
     cout << value << endl;
     cout << rect.x << rect.sx << endl;
@@ -26,19 +27,11 @@ void utility::addGrey(image &src, image &tgt, int value, roi rect) {
     // for (int r = 0; r < rect.size(); r++)
     for (int i = 0; i < src.getNumberOfRows(); i++) {
         for (int j = 0; j < src.getNumberOfColumns(); j++) {
-            tgt.setPixel(i, j, RED, src.getPixel(i, j, RED));
+            tgt.setPixel(i, j, src.getPixel(i, j));
         }
     }
-    // for (int i = 0; i < src.getNumberOfRows(); i++) {
-    //     for (int j = 0; j < src.getNumberOfColumns(); j++) {
-    //         tgt.setPixel(i, j, GREEN, src.getPixel(i, j, GREEN));
-    //     }
-    // }
-    // for (int i = 0; i < src.getNumberOfRows(); i++) {
-    //     for (int j = 0; j < src.getNumberOfColumns(); j++) {
-    //         tgt.setPixel(i, j, BLUE, src.getPixel(i, j, BLUE));
-    //     }
-    // }
+    
+    // Make changes to region of intrest
     for (int i = rect.y; i < rect.sy; i++) {
         for (int j = rect.x; j < rect.sx; j++) {
             tgt.setPixel(i, j, checkValue(src.getPixel(i, j) + value));
@@ -47,14 +40,23 @@ void utility::addGrey(image &src, image &tgt, int value, roi rect) {
 }
 
 /*-----------------------------------------------------------------------**/
-void utility::binarize(image &src, image &tgt, int threshold) {
+void utility::binarize(image &src, image &tgt, int threshold, roi rect) {
+    // Make a copy of origin image to target image
     tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
     for (int i = 0; i < src.getNumberOfRows(); i++) {
         for (int j = 0; j < src.getNumberOfColumns(); j++) {
-            if (src.getPixel(i, j) < threshold)
+            tgt.setPixel(i, j, src.getPixel(i, j));
+        }
+    }
+
+    // Make changes to region of intrest
+    for (int i = rect.y; i < rect.sy; i++) {
+        for (int j = rect.x; j < rect.sx; j++) {
+            if (src.getPixel(i, j) < threshold){
                 tgt.setPixel(i, j, MINRGB);
-            else
+            } else {
                 tgt.setPixel(i, j, MAXRGB);
+            }
         }
     }
 }
@@ -85,15 +87,21 @@ void utility::scale(image &src, image &tgt, float ratio) {
 }
 
 /*-----------------------------------------------------------------------**/
-void utility::adjustBrightness(image &src, image &tgt, int treshold, int value1, int value2) {
+void utility::adjustBrightness(image &src, image &tgt, int treshold, int value1, int value2, roi rect) {
+    // Make a copy of origin image to target image
     tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
     for (int i = 0; i < src.getNumberOfRows(); i++) {
         for (int j = 0; j < src.getNumberOfColumns(); j++) {
+            tgt.setPixel(i, j, src.getPixel(i, j));
+        }
+    }
+
+    // Make changes to region of intrest
+    for (int i = rect.y; i < rect.sy; i++) {
+        for (int j = rect.x; j < rect.sx; j++) {
             if (src.getPixel(i, j) > treshold) {
-                // cout << "inja" << endl;
                 tgt.setPixel(i, j, checkValue(src.getPixel(i, j) + value1));
             } else if (src.getPixel(i, j) < treshold) {
-                // cout << "inja2" << endl;
                 tgt.setPixel(i, j, checkValue(src.getPixel(i, j) - value2));
             }
         }
