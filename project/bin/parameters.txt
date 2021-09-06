@@ -1,5 +1,1 @@
-tree.pgm tree_br_128_50_50.pgm changeBrightness 128 50 50
-tree.pgm tree_br_70_80_20.pgm changeBrightness 70 80 20
-tree.pgm tree_br_180_40_90.pgm changeBrightness 180 40 90
-tree.pgm tree_br_200_80_70.pgm changeBrightness 200 80 70
-tree.pgm tree_br_128_20_20.pgm changeBrightness 128 20 20
+baboon.pgm out.pgm add 200 50 500 350 50

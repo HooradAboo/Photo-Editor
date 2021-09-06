@@ -24,60 +24,56 @@ using namespace std;
 
 #define MAXLEN 256
 
-int main (int argc, char** argv)
-{
-	image src, tgt;
-	FILE *fp;
-	char str[MAXLEN];
-	char outfile[MAXLEN];
-	char *pch;
-	if ((fp = fopen(argv[1],"r")) == NULL) {
-		fprintf(stderr, "Can't open file: %s\n", argv[1]);
-		exit(1);
-	}
+int main(int argc, char **argv) {
+    image src, tgt;
+    FILE *fp;
+    char str[MAXLEN];
+    char outfile[MAXLEN];
+    char *pch;
+    if ((fp = fopen(argv[1], "r")) == NULL) {
+        fprintf(stderr, "Can't open file: %s\n", argv[1]);
+        exit(1);
+    }
 
-	while(fgets(str,MAXLEN,fp) != NULL) {
-		pch = strtok(str, " ");
-		src.read(pch);
+    while (fgets(str, MAXLEN, fp) != NULL) {
+        pch = strtok(str, " ");
+        src.read(pch);
 
-		pch = strtok(NULL, " ");
-		strcpy(outfile, pch);
+        pch = strtok(NULL, " ");
+        strcpy(outfile, pch);
 
-		pch = strtok(NULL, " ");
-        if (strcmp(pch,"add")==0) {
-			/* Add Intensity */
-			pch = strtok(NULL, " ");
-        	utility::addGrey(src,tgt,atoi(pch));
+        pch = strtok(NULL, " ");
+        if (strcmp(pch, "add") == 0) {
+            /* Add Intensity */
+            roi rect;
+            rect.x = atoi(strtok(NULL, " "));
+            rect.y = atoi(strtok(NULL, " "));
+            rect.sx = atoi(strtok(NULL, " "));
+            rect.sy = atoi(strtok(NULL, " "));
+            pch = strtok(NULL, " ");
+            utility::addGrey(src, tgt, rect, atoi(pch));
+        } else if (strcmp(pch, "binarize") == 0) {
+            /* Thresholding */
+            pch = strtok(NULL, " ");
+            utility::binarize(src, tgt, atoi(pch));
+        } else if (strcmp(pch, "scale") == 0) {
+            /* Image scaling */
+            pch = strtok(NULL, " ");
+            utility::scale(src, tgt, atof(pch));
+        } else if (strcmp(pch, "brightness") == 0) {
+            /* Image brightness */
+            char *T = strtok(NULL, " ");
+            char *V1 = strtok(NULL, " ");
+            char *V2 = strtok(NULL, " ");
+            utility::adjustBrightness(src, tgt, atof(T), atof(V1), atof(V2));
+        } else {
+            printf("No function: %s\n", pch);
+            continue;
         }
 
-        else if (strcmp(pch,"binarize")==0) {
-			/* Thresholding */
-			pch = strtok(NULL, " ");
-			utility::binarize(src,tgt,atoi(pch));
-		}
-
-		else if (strcmp(pch,"scale")==0) {
-			/* Image scaling */
-			pch = strtok(NULL, " ");
-			utility::scale(src,tgt,atof(pch));
-		}
-
-		else if (strcmp(pch,"changeBrightness")==0) {
-			/* Image brightness */
-			char* T = strtok(NULL, " ");
-			char* V1 = strtok(NULL, " ");
-			char* V2 = strtok(NULL, " ");
-			utility::changeBrightness(src,tgt,atof(T),atof(V1),atof(V2));
-		}
-
-		else {
-			printf("No function: %s\n", pch);
-			continue;
-		}
-       
-		tgt.save(outfile);
-	}
-	fclose(fp);
-	return 0;
+        tgt.save(outfile);
+    }
+    fclose(fp);
+    return 0;
 }
 
