@@ -46,7 +46,6 @@ int main(int argc, char **argv) {
 
         if (strcmp(pch, "add") == 0) {
             /* Add Intensity */
-            cout << "inja" << endl;
             vector<roi> vroi;
             roi rect;
             while (rect.sx != 0 && rect.sy != 0) {
@@ -63,13 +62,19 @@ int main(int argc, char **argv) {
 
         } else if (strcmp(pch, "binarize") == 0) {
             /* Thresholding */
-            pch = strtok(NULL, " ");
+            vector<roi> vroi;
             roi rect;
-            rect.x = atoi(strtok(NULL, " "));
-            rect.y = atoi(strtok(NULL, " "));
-            rect.sx = atoi(strtok(NULL, " "));
-            rect.sy = atoi(strtok(NULL, " "));
-            utility::binarize(src, tgt, atoi(pch), rect);
+            while (rect.sx != 0 && rect.sy != 0) {
+                rect.threshold = atoi(strtok(NULL, " "));
+                rect.x = atoi(strtok(NULL, " "));
+                rect.y = atoi(strtok(NULL, " "));
+                rect.sx = atoi(strtok(NULL, " "));
+                rect.sy = atoi(strtok(NULL, " "));
+
+                vroi.push_back(rect);
+            }
+            vroi.pop_back(); 
+            utility::binarize(src, tgt, vroi);
 
         } else if (strcmp(pch, "scale") == 0) {
             /* Image scaling */

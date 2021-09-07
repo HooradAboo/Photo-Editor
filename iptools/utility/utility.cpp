@@ -45,7 +45,7 @@ void utility::addGrey(image &src, image &tgt, vector<roi> rect) {
 }
 
 /*-----------------------------------------------------------------------**/
-void utility::binarize(image &src, image &tgt, int threshold, roi rect) {
+void utility::binarize(image &src, image &tgt, vector<roi> rect) {
     // Make a copy of origin image to target image
     tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
     for (int i = 0; i < src.getNumberOfRows(); i++) {
@@ -54,13 +54,22 @@ void utility::binarize(image &src, image &tgt, int threshold, roi rect) {
         }
     }
 
+    // Print vector
+    for (int i = 0; i < rect.size(); i++) {
+        cout << "Threshold: " << rect[i].threshold << endl;
+        cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+        cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+    }
+
     // Make changes to region of intrest
-    for (int i = rect.y; i < rect.sy; i++) {
-        for (int j = rect.x; j < rect.sx; j++) {
-            if (src.getPixel(i, j) < threshold){
-                tgt.setPixel(i, j, MINRGB);
-            } else {
-                tgt.setPixel(i, j, MAXRGB);
+    for (int r = 0; r < rect.size(); r++) {
+        for (int i = rect[r].y; i < rect[r].sy; i++) {
+            for (int j = rect[r].x; j < rect[r].sx; j++) {
+                if (src.getPixel(i, j) < rect[r].threshold){
+                    tgt.setPixel(i, j, MINRGB);
+                } else {
+                    tgt.setPixel(i, j, MAXRGB);
+                }
             }
         }
     }
