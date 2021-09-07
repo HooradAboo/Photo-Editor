@@ -18,7 +18,7 @@ int utility::checkValue(int value) {
 }
 
 /*-----------------------------------------------------------------------**/
-void utility::addGrey(image &src, image &tgt, vector<roi> rect) {
+void utility::addGrey(image &src, image &tgt, vector<v_roi> rect) {
     // Make a copy of origin image to target image
     tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns()); 
     for (int i = 0; i < src.getNumberOfRows(); i++) {
@@ -29,6 +29,8 @@ void utility::addGrey(image &src, image &tgt, vector<roi> rect) {
 
     // Print vector
     for (int i = 0; i < rect.size(); i++) {
+        cout << "/*------------------------*/" << endl;
+        cout << "Add Gray" << endl;
         cout << "Value: " << rect[i].value << endl;
         cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
         cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
@@ -45,7 +47,7 @@ void utility::addGrey(image &src, image &tgt, vector<roi> rect) {
 }
 
 /*-----------------------------------------------------------------------**/
-void utility::binarize(image &src, image &tgt, vector<roi> rect) {
+void utility::binarize(image &src, image &tgt, vector<t_roi> rect) {
     // Make a copy of origin image to target image
     tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
     for (int i = 0; i < src.getNumberOfRows(); i++) {
@@ -56,6 +58,8 @@ void utility::binarize(image &src, image &tgt, vector<roi> rect) {
 
     // Print vector
     for (int i = 0; i < rect.size(); i++) {
+        cout << "/*------------------------*/" << endl;
+        cout << "Binarize" << endl;
         cout << "Threshold: " << rect[i].threshold << endl;
         cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
         cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
@@ -101,7 +105,7 @@ void utility::scale(image &src, image &tgt, float ratio) {
 }
 
 /*-----------------------------------------------------------------------**/
-void utility::adjustBrightness(image &src, image &tgt, int treshold, int value1, int value2, roi rect) {
+void utility::adjustBrightness(image &src, image &tgt, vector<vtv_roi> rect) {
     // Make a copy of origin image to target image
     tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
     for (int i = 0; i < src.getNumberOfRows(); i++) {
@@ -110,13 +114,25 @@ void utility::adjustBrightness(image &src, image &tgt, int treshold, int value1,
         }
     }
 
+    // Print vector
+    for (int i = 0; i < rect.size(); i++) {
+        cout << "/*------------------------*/" << endl;
+        cout << "Adjust Brightness" << endl;
+        cout << "Threshold: " << rect[i].threshold << endl;
+        cout << "Value1, Value2: " << rect[i].value1 << ", " << rect[i].value1 << endl;
+        cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+        cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+    }
+
     // Make changes to region of intrest
-    for (int i = rect.y; i < rect.sy; i++) {
-        for (int j = rect.x; j < rect.sx; j++) {
-            if (src.getPixel(i, j) > treshold) {
-                tgt.setPixel(i, j, checkValue(src.getPixel(i, j) + value1));
-            } else if (src.getPixel(i, j) < treshold) {
-                tgt.setPixel(i, j, checkValue(src.getPixel(i, j) - value2));
+    for (int r = 0; r < rect.size(); r++) {
+        for (int i = rect[r].y; i < rect[r].sy; i++) {
+            for (int j = rect[r].x; j < rect[r].sx; j++) {
+                if (src.getPixel(i, j) > rect[r].threshold) {
+                    tgt.setPixel(i, j, checkValue(src.getPixel(i, j) + rect[r].value1));
+                } else if (src.getPixel(i, j) < rect[r].threshold) {
+                    tgt.setPixel(i, j, checkValue(src.getPixel(i, j) - rect[r].value2));
+                }
             }
         }
     }

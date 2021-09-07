@@ -46,8 +46,8 @@ int main(int argc, char **argv) {
 
         if (strcmp(pch, "add") == 0) {
             /* Add Intensity */
-            vector<roi> vroi;
-            roi rect;
+            vector<v_roi> vroi;
+            v_roi rect;
             while (rect.sx != 0 && rect.sy != 0) {
                 rect.value = atoi(strtok(NULL, " "));
                 rect.x = atoi(strtok(NULL, " "));
@@ -62,8 +62,8 @@ int main(int argc, char **argv) {
 
         } else if (strcmp(pch, "binarize") == 0) {
             /* Thresholding */
-            vector<roi> vroi;
-            roi rect;
+            vector<t_roi> vroi;
+            t_roi rect;
             while (rect.sx != 0 && rect.sy != 0) {
                 rect.threshold = atoi(strtok(NULL, " "));
                 rect.x = atoi(strtok(NULL, " "));
@@ -83,15 +83,21 @@ int main(int argc, char **argv) {
 
         } else if (strcmp(pch, "brightness") == 0) {
             /* Image brightness */
-            char *T = strtok(NULL, " ");
-            char *V1 = strtok(NULL, " ");
-            char *V2 = strtok(NULL, " ");
-            roi rect;
-            rect.x = atoi(strtok(NULL, " "));
-            rect.y = atoi(strtok(NULL, " "));
-            rect.sx = atoi(strtok(NULL, " "));
-            rect.sy = atoi(strtok(NULL, " "));
-            utility::adjustBrightness(src, tgt, atof(T), atof(V1), atof(V2), rect);
+            vector<vtv_roi> vroi;
+            vtv_roi rect;
+            while (rect.sx != 0 && rect.sy != 0) {
+                rect.threshold = atoi(strtok(NULL, " "));
+                rect.value1 = atoi(strtok(NULL, " "));
+                rect.value2 = atoi(strtok(NULL, " "));
+                rect.x = atoi(strtok(NULL, " "));
+                rect.y = atoi(strtok(NULL, " "));
+                rect.sx = atoi(strtok(NULL, " "));
+                rect.sy = atoi(strtok(NULL, " "));
+
+                vroi.push_back(rect);
+            }
+            vroi.pop_back();
+            utility::adjustBrightness(src, tgt, vroi);
 
         } else {
             printf("No function: %s\n", pch);
