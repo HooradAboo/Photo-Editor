@@ -43,15 +43,24 @@ int main(int argc, char **argv) {
         strcpy(outfile, pch);
 
         pch = strtok(NULL, " ");
+
         if (strcmp(pch, "add") == 0) {
             /* Add Intensity */
-            pch = strtok(NULL, " ");
+            cout << "inja" << endl;
+            vector<roi> vroi;
             roi rect;
-            rect.x = atoi(strtok(NULL, " "));
-            rect.y = atoi(strtok(NULL, " "));
-            rect.sx = atoi(strtok(NULL, " "));
-            rect.sy = atoi(strtok(NULL, " "));
-            utility::addGrey(src, tgt, atoi(pch), rect);
+            while (rect.sx != 0 && rect.sy != 0) {
+                rect.value = atoi(strtok(NULL, " "));
+                rect.x = atoi(strtok(NULL, " "));
+                rect.y = atoi(strtok(NULL, " "));
+                rect.sx = atoi(strtok(NULL, " "));
+                rect.sy = atoi(strtok(NULL, " "));
+
+                vroi.push_back(rect);
+            }
+            vroi.pop_back();       
+            utility::addGrey(src, tgt, vroi);
+
         } else if (strcmp(pch, "binarize") == 0) {
             /* Thresholding */
             pch = strtok(NULL, " ");
@@ -61,10 +70,12 @@ int main(int argc, char **argv) {
             rect.sx = atoi(strtok(NULL, " "));
             rect.sy = atoi(strtok(NULL, " "));
             utility::binarize(src, tgt, atoi(pch), rect);
+
         } else if (strcmp(pch, "scale") == 0) {
             /* Image scaling */
             pch = strtok(NULL, " ");
             utility::scale(src, tgt, atof(pch));
+
         } else if (strcmp(pch, "brightness") == 0) {
             /* Image brightness */
             char *T = strtok(NULL, " ");
@@ -76,6 +87,7 @@ int main(int argc, char **argv) {
             rect.sx = atoi(strtok(NULL, " "));
             rect.sy = atoi(strtok(NULL, " "));
             utility::adjustBrightness(src, tgt, atof(T), atof(V1), atof(V2), rect);
+
         } else {
             printf("No function: %s\n", pch);
             continue;

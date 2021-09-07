@@ -18,23 +18,28 @@ int utility::checkValue(int value) {
 }
 
 /*-----------------------------------------------------------------------**/
-void utility::addGrey(image &src, image &tgt, int value, roi rect) {
+void utility::addGrey(image &src, image &tgt, vector<roi> rect) {
     // Make a copy of origin image to target image
-    tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
-    cout << value << endl;
-    cout << rect.x << rect.sx << endl;
-    cout << rect.y << rect.sy << endl;
-    // for (int r = 0; r < rect.size(); r++)
+    tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns()); 
     for (int i = 0; i < src.getNumberOfRows(); i++) {
         for (int j = 0; j < src.getNumberOfColumns(); j++) {
             tgt.setPixel(i, j, src.getPixel(i, j));
         }
     }
+
+    // Print vector
+    for (int i = 0; i < rect.size(); i++) {
+        cout << "Value: " << rect[i].value << endl;
+        cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+        cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+    }
     
     // Make changes to region of intrest
-    for (int i = rect.y; i < rect.sy; i++) {
-        for (int j = rect.x; j < rect.sx; j++) {
-            tgt.setPixel(i, j, checkValue(src.getPixel(i, j) + value));
+    for (int r = 0; r < rect.size(); r++) {
+        for (int i = rect[r].y; i < rect[r].sy; i++) {
+            for (int j = rect[r].x; j < rect[r].sx; j++) {
+                tgt.setPixel(i, j, checkValue(src.getPixel(i, j) + rect[r].value));
+            }
         }
     }
 }
