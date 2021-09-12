@@ -99,6 +99,22 @@ int main(int argc, char **argv) {
             vroi.pop_back();
             utility::adjustBrightness(src, tgt, vroi);
 
+        } else if (strcmp(pch, "smoothing") == 0) {
+            /* Image brightness */
+            vector<w_roi> vroi;
+            w_roi rect;
+            while (rect.sx != 0 && rect.sy != 0) {
+                rect.window = atoi(strtok(NULL, " "));
+                rect.x = atoi(strtok(NULL, " "));
+                rect.y = atoi(strtok(NULL, " "));
+                rect.sx = atoi(strtok(NULL, " "));
+                rect.sy = atoi(strtok(NULL, " "));
+
+                vroi.push_back(rect);
+            }
+            vroi.pop_back();
+            utility::smoothing(src, tgt, vroi);
+
         } else {
             printf("No function: %s\n", pch);
             continue;

@@ -30,6 +30,13 @@ struct vtv_roi
     int threshold;
 };
 
+// Rectangular region of intrest - smoothing
+struct w_roi    
+{
+    int x, y;
+    int sx, sy;
+    int window;
+};
 
 class utility {
 public:
@@ -41,6 +48,7 @@ public:
     static void binarize(image &src, image &tgt, vector<t_roi> rect);
     static void scale(image &src, image &tgt, float ratio);
     static void adjustBrightness(image &src, image &tgt, vector<vtv_roi> rect);
+    static void smoothing(image &src, image &tgt, vector<w_roi> rect);
 };
 
 #endif

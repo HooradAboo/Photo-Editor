@@ -1,3 +1,4 @@
 baboon.pgm out_a.pgm add 80 200 200 300 300 20 0 0 200 200 100 300 300 400 400
 baboon.pgm out_b.pgm binarize 128 200 200 300 300 100 0 0 200 200
 baboon.pgm out_br.pgm brightness 128 60 100 200 200 400 400 50 100 150 0 0 150 200
+baboon.pgm out_s5.pgm smoothing 5 0 0 250 500

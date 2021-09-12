@@ -19,6 +19,9 @@ int utility::checkValue(int value) {
 
 /*-----------------------------------------------------------------------**/
 void utility::addGrey(image &src, image &tgt, vector<v_roi> rect) {
+    // bool flag = checkRoI(rect);
+    // cout << flag << endl;
+
     // Make a copy of origin image to target image
     tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns()); 
     for (int i = 0; i < src.getNumberOfRows(); i++) {
@@ -133,6 +136,43 @@ void utility::adjustBrightness(image &src, image &tgt, vector<vtv_roi> rect) {
                 } else if (src.getPixel(i, j) < rect[r].threshold) {
                     tgt.setPixel(i, j, checkValue(src.getPixel(i, j) - rect[r].value2));
                 }
+            }
+        }
+    }
+}
+
+/*-----------------------------------------------------------------------**/
+void utility::smoothing(image &src, image &tgt, vector<w_roi> rect) {
+    // Make a copy of origin image to target image
+    tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
+    for (int i = 0; i < src.getNumberOfRows(); i++) {
+        for (int j = 0; j < src.getNumberOfColumns(); j++) {
+            tgt.setPixel(i, j, src.getPixel(i, j));
+        }
+    }
+
+    // Print vector
+    for (int i = 0; i < rect.size(); i++) {
+        cout << "/*------------------------*/" << endl;
+        cout << "Smoothing" << endl;
+        cout << "Window: " << rect[i].window << endl;
+        cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+        cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+    }
+
+
+    // Make changes to region of intrest
+    for (int r = 0; r < rect.size(); r++) {
+        for (int i = rect[r].y; i < rect[r].sy; i++) {
+            for (int j = rect[r].x; j < rect[r].sx; j++) {
+                int sum = 0;
+                for (int wr = 0; wr < rect[r].window; wr++) {
+                    for (int wc = 0; wc < rect[r].window; wc++) {
+                        sum += tgt.getPixel(i + wr, j + wc);
+                    }
+                }
+                int avg = sum / (rect[r].window * rect[r].window);
+                tgt.setPixel(i + rect[r].window/2, j + rect[r].window/2, checkValue(avg));
             }
         }
     }
