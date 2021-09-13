@@ -38,6 +38,15 @@ struct w_roi
     int window;
 };
 
+// Rectangular region of intrest - colorAddjustBrightness
+struct rgb_roi    
+{
+    int x, y;
+    int sx, sy;
+    int red, green, blue;
+    int threshold;
+};
+
 class utility {
 public:
     utility();
@@ -49,6 +58,7 @@ public:
     static void scale(image &src, image &tgt, float ratio);
     static void adjustBrightness(image &src, image &tgt, vector<vtv_roi> rect);
     static void smoothing(image &src, image &tgt, vector<w_roi> rect);
+    static void colorAdjustBrightness(image &src, image &tgt, vector<rgb_roi> rect);
 };
 
 #endif

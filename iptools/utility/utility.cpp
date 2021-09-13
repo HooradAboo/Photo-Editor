@@ -19,9 +19,6 @@ int utility::checkValue(int value) {
 
 /*-----------------------------------------------------------------------**/
 void utility::addGrey(image &src, image &tgt, vector<v_roi> rect) {
-    // bool flag = checkRoI(rect);
-    // cout << flag << endl;
-
     // Make a copy of origin image to target image
     tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns()); 
     for (int i = 0; i < src.getNumberOfRows(); i++) {
@@ -173,6 +170,40 @@ void utility::smoothing(image &src, image &tgt, vector<w_roi> rect) {
                 }
                 int avg = sum / (rect[r].window * rect[r].window);
                 tgt.setPixel(i + rect[r].window/2, j + rect[r].window/2, checkValue(avg));
+            }
+        }
+    }
+}
+
+/*-----------------------------------------------------------------------**/
+void utility::colorAdjustBrightness(image &src, image &tgt, vector<rgb_roi> rect) {
+    // Make a copy of origin image to target image
+    tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
+    for (int i = 0; i < src.getNumberOfRows(); i++) {
+        for (int j = 0; j < src.getNumberOfColumns(); j++) {
+            tgt.setPixel(i, j, RED, src.getPixel(i, j, RED));
+            tgt.setPixel(i, j, GREEN, src.getPixel(i, j, GREEN));
+            tgt.setPixel(i, j, BLUE, src.getPixel(i, j, BLUE));
+        }
+    }
+
+    // Print vector
+    for (int i = 0; i < rect.size(); i++) {
+        cout << "/*------------------------*/" << endl;
+        cout << "Color Brightness Modifying" << endl;
+        cout << "(R,G,B): (" << rect[i].red << "," << rect[i].green << "," << rect[i].blue << ")" << endl;
+        cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+        cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+    }
+
+
+    // Make changes to region of intrest
+    for (int r = 0; r < rect.size(); r++) {
+        for (int i = rect[r].y; i < rect[r].sy; i++) {
+            for (int j = rect[r].x; j < rect[r].sx; j++) {
+                tgt.setPixel(i, j, RED, checkValue(src.getPixel(i, j, RED) + rect[r].red));
+                tgt.setPixel(i, j, GREEN, checkValue(src.getPixel(i, j, GREEN) + rect[r].green));
+                tgt.setPixel(i, j, BLUE, checkValue(src.getPixel(i, j, BLUE) + rect[r].blue));
             }
         }
     }

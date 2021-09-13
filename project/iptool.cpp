@@ -24,6 +24,20 @@ using namespace std;
 
 #define MAXLEN 256
 
+bool isGray (char* name) {
+    for (int i = 0; i <= strlen(name); i++) {
+        // cout << name[i] << endl;
+        if (name[i] == 'g') {
+            // cout << "inja" << endl;
+            if (name[i-2] == '.' && name[i-1] == 'p' && name[i+1] == 'm') {
+                // cout << "inja1" << endl;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 int main(int argc, char **argv) {
     image src, tgt;
     FILE *fp;
@@ -38,6 +52,15 @@ int main(int argc, char **argv) {
     while (fgets(str, MAXLEN, fp) != NULL) {
         pch = strtok(str, " ");
         src.read(pch);
+
+        // bool isGray_flag = isGray (pch);
+        // if (isGray_flag) {
+        //     // Input image is gray-scale
+        //     cout << "gray" << endl;
+        // } else {
+        //     // Input image is RGB
+        //     cout << "RGB" << endl;
+        // }
 
         pch = strtok(NULL, " ");
         strcpy(outfile, pch);
@@ -100,7 +123,7 @@ int main(int argc, char **argv) {
             utility::adjustBrightness(src, tgt, vroi);
 
         } else if (strcmp(pch, "smoothing") == 0) {
-            /* Image brightness */
+            /* Smoothing Filter */
             vector<w_roi> vroi;
             w_roi rect;
             while (rect.sx != 0 && rect.sy != 0) {
@@ -114,6 +137,25 @@ int main(int argc, char **argv) {
             }
             vroi.pop_back();
             utility::smoothing(src, tgt, vroi);
+
+        } else if (strcmp(pch, "cbm") == 0) {
+            /* Color image brightness */
+            vector<rgb_roi> vroi;
+            rgb_roi rect;
+            while (rect.sx != 0 && rect.sy != 0) {
+                // rect.threshold = atoi(strtok(NULL, " "));
+                rect.red = atoi(strtok(NULL, " "));
+                rect.green = atoi(strtok(NULL, " "));
+                rect.blue = atoi(strtok(NULL, " "));
+                rect.x = atoi(strtok(NULL, " "));
+                rect.y = atoi(strtok(NULL, " "));
+                rect.sx = atoi(strtok(NULL, " "));
+                rect.sy = atoi(strtok(NULL, " "));
+
+                vroi.push_back(rect);
+            }
+            vroi.pop_back();
+            utility::colorAdjustBrightness(src, tgt, vroi);
 
         } else {
             printf("No function: %s\n", pch);
