@@ -53,6 +53,8 @@ public:
     virtual ~utility();
     static std::string intToString(int number);
     static int checkValue(int value);
+    // template <typename RoI>
+    // static bool checkRoI (vector<RoI> vroi);
     static void addGrey(image &src, image &tgt, vector<v_roi> rect);
     static void binarize(image &src, image &tgt, vector<t_roi> rect);
     static void scale(image &src, image &tgt, float ratio);

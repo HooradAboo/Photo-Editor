@@ -17,30 +17,86 @@ int utility::checkValue(int value) {
     return value;
 }
 
-/*-----------------------------------------------------------------------**/
-void utility::addGrey(image &src, image &tgt, vector<v_roi> rect) {
-    // Make a copy of origin image to target image
-    tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns()); 
-    for (int i = 0; i < src.getNumberOfRows(); i++) {
-        for (int j = 0; j < src.getNumberOfColumns(); j++) {
-            tgt.setPixel(i, j, src.getPixel(i, j));
+template <typename RoI>
+bool checkRoI (vector<RoI> vroi) {
+    for (int i = 0; i < vroi.size(); i++){
+        // If (X,Y) is equals or greater than (SX,Sy), print error message.
+        if ((vroi[i].x >= vroi[i].sx) || (vroi[i].y >= vroi[i].sy)) {
+            switch (i+1) {
+            case 1:
+                cout << "Error 101: 1st ROI cooardinates are not correct." << endl;
+                return false;
+            case 2:
+                cout << "Error 101: 2ed ROI cooardinates are not correct." << endl;
+                return false;
+            case 3:
+                cout << "Error 101: 3rd ROI cooardinates are not correct." << endl;
+                return false;
+            default:
+                cout << "Error 101: " << i+1 << "th  ROI cooardinates are not correct." << endl;
+                return false;
+            }
+        }
+
+        // If any two RoI have overlaped, print error message.
+        for (int j = i + 1; j < vroi.size(); j++){
+
+            if (vroi[i].x <= vroi[j].x && vroi[j].x <= vroi[i].sx) {
+                if (vroi[i].y <= vroi[j].y && vroi[j].y <= vroi[i].sy) {
+                    cout << "Error 201: RoI " << i+1 << " and " << j+1 << " have overlapped." << endl;
+                    return false;
+                }
+            }
+            if (vroi[i].x <= vroi[j].sx && vroi[j].sx <= vroi[i].sx) {
+                if (vroi[i].y <= vroi[j].y && vroi[j].y <= vroi[i].sy) {
+                    cout << "Error 202: RoI " << i+1 << " and " << j+1 << " have overlapped." << endl;
+                    return false;
+                }
+            }
+            if (vroi[i].x <= vroi[j].x && vroi[j].x <= vroi[i].sx) {
+                if (vroi[i].y <= vroi[j].sy && vroi[j].sy <= vroi[i].sy) {
+                    cout << "Error 203: RoI " << i+1 << " and " << j+1 << " have overlapped." << endl;
+                    return false;
+                }
+            }
+            if (vroi[i].x <= vroi[j].sx && vroi[j].sx <= vroi[i].sx) {
+                if (vroi[i].y <= vroi[j].sy && vroi[j].sy <= vroi[i].sy) {
+                    cout << "Error 204: RoI " << i+1 << " and " << j+1 << " have overlapped." << endl;
+                    return false;
+                }
+            }         
         }
     }
+    return true;
+}
 
-    // Print vector
-    for (int i = 0; i < rect.size(); i++) {
-        cout << "/*------------------------*/" << endl;
-        cout << "Add Gray" << endl;
-        cout << "Value: " << rect[i].value << endl;
-        cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
-        cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
-    }
-    
-    // Make changes to region of intrest
-    for (int r = 0; r < rect.size(); r++) {
-        for (int i = rect[r].y; i < rect[r].sy; i++) {
-            for (int j = rect[r].x; j < rect[r].sx; j++) {
-                tgt.setPixel(i, j, checkValue(src.getPixel(i, j) + rect[r].value));
+
+/*-----------------------------------------------------------------------**/
+void utility::addGrey(image &src, image &tgt, vector<v_roi> rect) {
+    if (checkRoI (rect)) {
+        // Make a copy of origin image to target image
+        tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns()); 
+        for (int i = 0; i < src.getNumberOfRows(); i++) {
+            for (int j = 0; j < src.getNumberOfColumns(); j++) {
+                tgt.setPixel(i, j, src.getPixel(i, j));
+            }
+        }
+
+        // Print vector
+        for (int i = 0; i < rect.size(); i++) {
+            cout << "/*------------------------*/" << endl;
+            cout << "Add Gray" << endl;
+            cout << "Value: " << rect[i].value << endl;
+            cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+            cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+        }
+        
+        // Make changes to region of intrest
+        for (int r = 0; r < rect.size(); r++) {
+            for (int i = rect[r].y; i < rect[r].sy; i++) {
+                for (int j = rect[r].x; j < rect[r].sx; j++) {
+                    tgt.setPixel(i, j, checkValue(src.getPixel(i, j) + rect[r].value));
+                }
             }
         }
     }
@@ -48,31 +104,33 @@ void utility::addGrey(image &src, image &tgt, vector<v_roi> rect) {
 
 /*-----------------------------------------------------------------------**/
 void utility::binarize(image &src, image &tgt, vector<t_roi> rect) {
-    // Make a copy of origin image to target image
-    tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
-    for (int i = 0; i < src.getNumberOfRows(); i++) {
-        for (int j = 0; j < src.getNumberOfColumns(); j++) {
-            tgt.setPixel(i, j, src.getPixel(i, j));
+    if (checkRoI (rect)) {
+        // Make a copy of origin image to target image
+        tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
+        for (int i = 0; i < src.getNumberOfRows(); i++) {
+            for (int j = 0; j < src.getNumberOfColumns(); j++) {
+                tgt.setPixel(i, j, src.getPixel(i, j));
+            }
         }
-    }
 
-    // Print vector
-    for (int i = 0; i < rect.size(); i++) {
-        cout << "/*------------------------*/" << endl;
-        cout << "Binarize" << endl;
-        cout << "Threshold: " << rect[i].threshold << endl;
-        cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
-        cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
-    }
+        // Print vector
+        for (int i = 0; i < rect.size(); i++) {
+            cout << "/*------------------------*/" << endl;
+            cout << "Binarize" << endl;
+            cout << "Threshold: " << rect[i].threshold << endl;
+            cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+            cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+        }
 
-    // Make changes to region of intrest
-    for (int r = 0; r < rect.size(); r++) {
-        for (int i = rect[r].y; i < rect[r].sy; i++) {
-            for (int j = rect[r].x; j < rect[r].sx; j++) {
-                if (src.getPixel(i, j) < rect[r].threshold){
-                    tgt.setPixel(i, j, MINRGB);
-                } else {
-                    tgt.setPixel(i, j, MAXRGB);
+        // Make changes to region of intrest
+        for (int r = 0; r < rect.size(); r++) {
+            for (int i = rect[r].y; i < rect[r].sy; i++) {
+                for (int j = rect[r].x; j < rect[r].sx; j++) {
+                    if (src.getPixel(i, j) < rect[r].threshold){
+                        tgt.setPixel(i, j, MINRGB);
+                    } else {
+                        tgt.setPixel(i, j, MAXRGB);
+                    }
                 }
             }
         }
@@ -106,32 +164,34 @@ void utility::scale(image &src, image &tgt, float ratio) {
 
 /*-----------------------------------------------------------------------**/
 void utility::adjustBrightness(image &src, image &tgt, vector<vtv_roi> rect) {
-    // Make a copy of origin image to target image
-    tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
-    for (int i = 0; i < src.getNumberOfRows(); i++) {
-        for (int j = 0; j < src.getNumberOfColumns(); j++) {
-            tgt.setPixel(i, j, src.getPixel(i, j));
+    if (checkRoI (rect)) {
+        // Make a copy of origin image to target image
+        tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
+        for (int i = 0; i < src.getNumberOfRows(); i++) {
+            for (int j = 0; j < src.getNumberOfColumns(); j++) {
+                tgt.setPixel(i, j, src.getPixel(i, j));
+            }
         }
-    }
 
-    // Print vector
-    for (int i = 0; i < rect.size(); i++) {
-        cout << "/*------------------------*/" << endl;
-        cout << "Adjust Brightness" << endl;
-        cout << "Threshold: " << rect[i].threshold << endl;
-        cout << "Value1, Value2: " << rect[i].value1 << ", " << rect[i].value1 << endl;
-        cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
-        cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
-    }
+        // Print vector
+        for (int i = 0; i < rect.size(); i++) {
+            cout << "/*------------------------*/" << endl;
+            cout << "Adjust Brightness" << endl;
+            cout << "Threshold: " << rect[i].threshold << endl;
+            cout << "Value1, Value2: " << rect[i].value1 << ", " << rect[i].value1 << endl;
+            cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+            cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+        }
 
-    // Make changes to region of intrest
-    for (int r = 0; r < rect.size(); r++) {
-        for (int i = rect[r].y; i < rect[r].sy; i++) {
-            for (int j = rect[r].x; j < rect[r].sx; j++) {
-                if (src.getPixel(i, j) > rect[r].threshold) {
-                    tgt.setPixel(i, j, checkValue(src.getPixel(i, j) + rect[r].value1));
-                } else if (src.getPixel(i, j) < rect[r].threshold) {
-                    tgt.setPixel(i, j, checkValue(src.getPixel(i, j) - rect[r].value2));
+        // Make changes to region of intrest
+        for (int r = 0; r < rect.size(); r++) {
+            for (int i = rect[r].y; i < rect[r].sy; i++) {
+                for (int j = rect[r].x; j < rect[r].sx; j++) {
+                    if (src.getPixel(i, j) > rect[r].threshold) {
+                        tgt.setPixel(i, j, checkValue(src.getPixel(i, j) + rect[r].value1));
+                    } else if (src.getPixel(i, j) < rect[r].threshold) {
+                        tgt.setPixel(i, j, checkValue(src.getPixel(i, j) - rect[r].value2));
+                    }
                 }
             }
         }
@@ -140,36 +200,38 @@ void utility::adjustBrightness(image &src, image &tgt, vector<vtv_roi> rect) {
 
 /*-----------------------------------------------------------------------**/
 void utility::smoothing(image &src, image &tgt, vector<w_roi> rect) {
-    // Make a copy of origin image to target image
-    tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
-    for (int i = 0; i < src.getNumberOfRows(); i++) {
-        for (int j = 0; j < src.getNumberOfColumns(); j++) {
-            tgt.setPixel(i, j, src.getPixel(i, j));
+    if (checkRoI (rect)) {
+        // Make a copy of origin image to target image
+        tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
+        for (int i = 0; i < src.getNumberOfRows(); i++) {
+            for (int j = 0; j < src.getNumberOfColumns(); j++) {
+                tgt.setPixel(i, j, src.getPixel(i, j));
+            }
         }
-    }
 
-    // Print vector
-    for (int i = 0; i < rect.size(); i++) {
-        cout << "/*------------------------*/" << endl;
-        cout << "Smoothing" << endl;
-        cout << "Window: " << rect[i].window << endl;
-        cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
-        cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
-    }
+        // Print vector
+        for (int i = 0; i < rect.size(); i++) {
+            cout << "/*------------------------*/" << endl;
+            cout << "Smoothing" << endl;
+            cout << "Window: " << rect[i].window << endl;
+            cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+            cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+        }
 
 
-    // Make changes to region of intrest
-    for (int r = 0; r < rect.size(); r++) {
-        for (int i = rect[r].y; i < rect[r].sy; i++) {
-            for (int j = rect[r].x; j < rect[r].sx; j++) {
-                int sum = 0;
-                for (int wr = 0; wr < rect[r].window; wr++) {
-                    for (int wc = 0; wc < rect[r].window; wc++) {
-                        sum += tgt.getPixel(i + wr, j + wc);
+        // Make changes to region of intrest
+        for (int r = 0; r < rect.size(); r++) {
+            for (int i = rect[r].y; i < rect[r].sy; i++) {
+                for (int j = rect[r].x; j < rect[r].sx; j++) {
+                    int sum = 0;
+                    for (int wr = 0; wr < rect[r].window; wr++) {
+                        for (int wc = 0; wc < rect[r].window; wc++) {
+                            sum += tgt.getPixel(i + wr, j + wc);
+                        }
                     }
+                    int avg = sum / (rect[r].window * rect[r].window);
+                    tgt.setPixel(i + rect[r].window/2, j + rect[r].window/2, checkValue(avg));
                 }
-                int avg = sum / (rect[r].window * rect[r].window);
-                tgt.setPixel(i + rect[r].window/2, j + rect[r].window/2, checkValue(avg));
             }
         }
     }
@@ -177,34 +239,37 @@ void utility::smoothing(image &src, image &tgt, vector<w_roi> rect) {
 
 /*-----------------------------------------------------------------------**/
 void utility::colorAdjustBrightness(image &src, image &tgt, vector<rgb_roi> rect) {
-    // Make a copy of origin image to target image
-    tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
-    for (int i = 0; i < src.getNumberOfRows(); i++) {
-        for (int j = 0; j < src.getNumberOfColumns(); j++) {
-            tgt.setPixel(i, j, RED, src.getPixel(i, j, RED));
-            tgt.setPixel(i, j, GREEN, src.getPixel(i, j, GREEN));
-            tgt.setPixel(i, j, BLUE, src.getPixel(i, j, BLUE));
+    if (checkRoI (rect)) {
+        // Make a copy of origin image to target image
+        tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
+        for (int i = 0; i < src.getNumberOfRows(); i++) {
+            for (int j = 0; j < src.getNumberOfColumns(); j++) {
+                tgt.setPixel(i, j, RED, src.getPixel(i, j, RED));
+                tgt.setPixel(i, j, GREEN, src.getPixel(i, j, GREEN));
+                tgt.setPixel(i, j, BLUE, src.getPixel(i, j, BLUE));
+            }
         }
-    }
 
-    // Print vector
-    for (int i = 0; i < rect.size(); i++) {
-        cout << "/*------------------------*/" << endl;
-        cout << "Color Brightness Modifying" << endl;
-        cout << "(R,G,B): (" << rect[i].red << "," << rect[i].green << "," << rect[i].blue << ")" << endl;
-        cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
-        cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
-    }
+        // Print vector
+        for (int i = 0; i < rect.size(); i++) {
+            cout << "/*------------------------*/" << endl;
+            cout << "Color Brightness Modifying" << endl;
+            cout << "(R,G,B): (" << rect[i].red << "," << rect[i].green << "," << rect[i].blue << ")" << endl;
+            cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+            cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+        }
 
 
-    // Make changes to region of intrest
-    for (int r = 0; r < rect.size(); r++) {
-        for (int i = rect[r].y; i < rect[r].sy; i++) {
-            for (int j = rect[r].x; j < rect[r].sx; j++) {
-                tgt.setPixel(i, j, RED, checkValue(src.getPixel(i, j, RED) + rect[r].red));
-                tgt.setPixel(i, j, GREEN, checkValue(src.getPixel(i, j, GREEN) + rect[r].green));
-                tgt.setPixel(i, j, BLUE, checkValue(src.getPixel(i, j, BLUE) + rect[r].blue));
+        // Make changes to region of intrest
+        for (int r = 0; r < rect.size(); r++) {
+            for (int i = rect[r].y; i < rect[r].sy; i++) {
+                for (int j = rect[r].x; j < rect[r].sx; j++) {
+                    tgt.setPixel(i, j, RED, checkValue(src.getPixel(i, j, RED) + rect[r].red));
+                    tgt.setPixel(i, j, GREEN, checkValue(src.getPixel(i, j, GREEN) + rect[r].green));
+                    tgt.setPixel(i, j, BLUE, checkValue(src.getPixel(i, j, BLUE) + rect[r].blue));
+                }
             }
         }
     }
 }
+

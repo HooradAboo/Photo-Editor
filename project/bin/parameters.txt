@@ -1,1 +1,1 @@
-ball.ppm out_cbm.ppm cbm 20 100 100 200 200
+baboon.pgm out_a.pgm add 70 100 100 300 300 100 10 10 150 150
