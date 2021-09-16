@@ -53,15 +53,6 @@ int main(int argc, char **argv) {
         pch = strtok(str, " ");
         src.read(pch);
 
-        // bool isGray_flag = isGray (pch);
-        // if (isGray_flag) {
-        //     // Input image is gray-scale
-        //     cout << "gray" << endl;
-        // } else {
-        //     // Input image is RGB
-        //     cout << "RGB" << endl;
-        // }
-
         pch = strtok(NULL, " ");
         strcpy(outfile, pch);
 
@@ -71,7 +62,8 @@ int main(int argc, char **argv) {
             /* Add Intensity */
             vector<v_roi> vroi;
             v_roi rect;
-            do {
+            int roi_num = atoi(strtok(NULL, " "));
+            for (int i = 0; i < roi_num; i++) {
                 rect.value = atoi(strtok(NULL, " "));
                 rect.x = atoi(strtok(NULL, " "));
                 rect.y = atoi(strtok(NULL, " "));
@@ -79,15 +71,15 @@ int main(int argc, char **argv) {
                 rect.sy = atoi(strtok(NULL, " "));
 
                 vroi.push_back(rect);
-            } while (rect.sx != 0 && rect.sy != 0);
-            vroi.pop_back();       
+            }
             utility::addGrey(src, tgt, vroi);
 
         } else if (strcmp(pch, "binarize") == 0) {
             /* Thresholding */
             vector<t_roi> vroi;
             t_roi rect;
-            do {
+            int roi_num = atoi(strtok(NULL, " "));
+            for (int i = 0; i < roi_num; i++) {
                 rect.threshold = atoi(strtok(NULL, " "));
                 rect.x = atoi(strtok(NULL, " "));
                 rect.y = atoi(strtok(NULL, " "));
@@ -95,8 +87,7 @@ int main(int argc, char **argv) {
                 rect.sy = atoi(strtok(NULL, " "));
 
                 vroi.push_back(rect);
-            } while (rect.sx != 0 && rect.sy != 0);
-            vroi.pop_back(); 
+            } 
             utility::binarize(src, tgt, vroi);
 
         } else if (strcmp(pch, "scale") == 0) {
@@ -108,7 +99,8 @@ int main(int argc, char **argv) {
             /* Image brightness */
             vector<vtv_roi> vroi;
             vtv_roi rect;
-            do {
+            int roi_num = atoi(strtok(NULL, " "));
+            for (int i = 0; i < roi_num; i++) {
                 rect.threshold = atoi(strtok(NULL, " "));
                 rect.value1 = atoi(strtok(NULL, " "));
                 rect.value2 = atoi(strtok(NULL, " "));
@@ -118,8 +110,7 @@ int main(int argc, char **argv) {
                 rect.sy = atoi(strtok(NULL, " "));
 
                 vroi.push_back(rect);
-            } while (rect.sx != 0 && rect.sy != 0);
-            vroi.pop_back();
+            }
             utility::adjustBrightness(src, tgt, vroi);
 
         } else if (strcmp(pch, "smoothing") == 0) {
@@ -127,7 +118,8 @@ int main(int argc, char **argv) {
             vector<w_roi> vroi;
             w_roi rect;
         
-            do {
+            int roi_num = atoi(strtok(NULL, " "));
+            for (int i = 0; i < roi_num; i++) {
                 rect.window = atoi(strtok(NULL, " "));
                 rect.x = atoi(strtok(NULL, " "));
                 rect.y = atoi(strtok(NULL, " "));
@@ -135,19 +127,16 @@ int main(int argc, char **argv) {
                 rect.sy = atoi(strtok(NULL, " "));
 
                 vroi.push_back(rect);
-            } while (rect.sx != 0 && rect.sy != 0);
-            vroi.pop_back();
+            }
             utility::smoothing(src, tgt, vroi);
 
-        } else if (strcmp(pch, "cbm") == 0) {
-            cout << "cbm" << endl;
+        } else if (strcmp(pch, "cbrightness") == 0) {
             /* Color image brightness */
             vector<cm_roi> vroi;
-            cout << "inja" << endl;
             cm_roi rect;
-            do {
+            int roi_num = atoi(strtok(NULL, " "));
+            for (int i = 0; i < roi_num; i++) {
                 // rect.threshold = atoi(strtok(NULL, " "));
-                cout << "inja too" << endl;
                 rect.more_c = atoi(strtok(NULL, " "));
                 rect.x = atoi(strtok(NULL, " "));
                 rect.y = atoi(strtok(NULL, " "));
@@ -155,15 +144,15 @@ int main(int argc, char **argv) {
                 rect.sy = atoi(strtok(NULL, " "));
 
                 vroi.push_back(rect);
-            } while (rect.sx != 0 && rect.sy != 0);
-            vroi.pop_back();
+            }
             utility::colorAdjustBrightness(src, tgt, vroi);
 
-        } else if (strcmp(pch, "cb") == 0) {
+        } else if (strcmp(pch, "cbinarize") == 0) {
             /* Color image brightness */
             vector<cb_roi> vroi;
             cb_roi rect;
-            do {
+            int roi_num = atoi(strtok(NULL, " "));
+            for (int i = 0; i < roi_num; i++) {
                 rect.tc = atoi(strtok(NULL, " "));
                 rect.cr = atoi(strtok(NULL, " "));
                 rect.cg = atoi(strtok(NULL, " "));
@@ -174,8 +163,7 @@ int main(int argc, char **argv) {
                 rect.sy = atoi(strtok(NULL, " "));
 
                 vroi.push_back(rect);
-            } while (rect.sx != 0 && rect.sy != 0);
-            vroi.pop_back();
+            }
             utility::colorBinarize(src, tgt, vroi);
 
         } else {

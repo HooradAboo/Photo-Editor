@@ -178,7 +178,7 @@ void utility::adjustBrightness(image &src, image &tgt, vector<vtv_roi> rect) {
             cout << "/*------------------------*/" << endl;
             cout << "Adjust Brightness" << endl;
             cout << "Threshold: " << rect[i].threshold << endl;
-            cout << "Value1, Value2: " << rect[i].value1 << ", " << rect[i].value1 << endl;
+            cout << "Value1, Value2: " << rect[i].value1 << ", " << rect[i].value2 << endl;
             cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
             cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
         }
