@@ -1,1 +1,1 @@
-baboon.pgm out_a.pgm add 70 100 100 300 300 100 10 10 150 150
+004.ppm out_cbm.ppm cb 150 0 255 0 50 50 150 150

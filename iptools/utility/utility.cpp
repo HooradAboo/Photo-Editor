@@ -229,7 +229,7 @@ void utility::smoothing(image &src, image &tgt, vector<w_roi> rect) {
                             sum += tgt.getPixel(i + wr, j + wc);
                         }
                     }
-                    int avg = sum / (rect[r].window * rect[r].window);
+                    int avg = sum / pow(rect[r].window, 2);
                     tgt.setPixel(i + rect[r].window/2, j + rect[r].window/2, checkValue(avg));
                 }
             }
@@ -238,7 +238,7 @@ void utility::smoothing(image &src, image &tgt, vector<w_roi> rect) {
 }
 
 /*-----------------------------------------------------------------------**/
-void utility::colorAdjustBrightness(image &src, image &tgt, vector<rgb_roi> rect) {
+void utility::colorAdjustBrightness(image &src, image &tgt, vector<cm_roi> rect) {
     if (checkRoI (rect)) {
         // Make a copy of origin image to target image
         tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
@@ -254,7 +254,7 @@ void utility::colorAdjustBrightness(image &src, image &tgt, vector<rgb_roi> rect
         for (int i = 0; i < rect.size(); i++) {
             cout << "/*------------------------*/" << endl;
             cout << "Color Brightness Modifying" << endl;
-            cout << "(R,G,B): (" << rect[i].red << "," << rect[i].green << "," << rect[i].blue << ")" << endl;
+            cout << "More-C: " << rect[i].more_c << endl;
             cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
             cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
         }
@@ -264,12 +264,58 @@ void utility::colorAdjustBrightness(image &src, image &tgt, vector<rgb_roi> rect
         for (int r = 0; r < rect.size(); r++) {
             for (int i = rect[r].y; i < rect[r].sy; i++) {
                 for (int j = rect[r].x; j < rect[r].sx; j++) {
-                    tgt.setPixel(i, j, RED, checkValue(src.getPixel(i, j, RED) + rect[r].red));
-                    tgt.setPixel(i, j, GREEN, checkValue(src.getPixel(i, j, GREEN) + rect[r].green));
-                    tgt.setPixel(i, j, BLUE, checkValue(src.getPixel(i, j, BLUE) + rect[r].blue));
+                    tgt.setPixel(i, j, RED, checkValue(src.getPixel(i, j, RED) * rect[r].more_c));
+                    tgt.setPixel(i, j, GREEN, checkValue(src.getPixel(i, j, GREEN) + rect[r].more_c));
+                    tgt.setPixel(i, j, BLUE, checkValue(src.getPixel(i, j, BLUE) + rect[r].more_c));
                 }
             }
         }
     }
 }
 
+/*-----------------------------------------------------------------------**/
+void utility::colorBinarize(image &src, image &tgt, vector<cb_roi> rect) {
+    if (checkRoI (rect)) {
+        // Make a copy of origin image to target image
+        tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
+        for (int i = 0; i < src.getNumberOfRows(); i++) {
+            for (int j = 0; j < src.getNumberOfColumns(); j++) {
+                tgt.setPixel(i, j, RED, src.getPixel(i, j, RED));
+                tgt.setPixel(i, j, GREEN, src.getPixel(i, j, GREEN));
+                tgt.setPixel(i, j, BLUE, src.getPixel(i, j, BLUE));
+            }
+        }
+
+        // Print vector
+        for (int i = 0; i < rect.size(); i++) {
+            cout << "/*------------------------*/" << endl;
+            cout << "Color Binarize" << endl;
+            cout << "(CR,CG,CB): (" << rect[i].cr << "," << rect[i].cg << "," << rect[i].cb << ")" << endl;
+            cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+            cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+        }
+
+        int tc_original;
+        // Make changes to region of intrest
+        for (int r = 0; r < rect.size(); r++) {
+            for (int i = rect[r].y; i < rect[r].sy; i++) {
+                for (int j = rect[r].x; j < rect[r].sx; j++) {
+                    tc_original = sqrt (pow(rect[r].cr-src.getPixel(i, j, RED),2) + pow(rect[r].cg-src.getPixel(i, j, GREEN),2) + pow(rect[r].cb-src.getPixel(i, j, BLUE),2));
+                    if (tc_original < rect[r].tc){
+                        tgt.setPixel(i, j, RED, MAXRGB);
+                        tgt.setPixel(i, j, GREEN, MINRGB);
+                        tgt.setPixel(i, j, BLUE, MINRGB);
+                    } else if (rect[r].tc <= tc_original && tc_original <= 2*rect[r].tc) {
+                        tgt.setPixel(i, j, RED, MINRGB);
+                        tgt.setPixel(i, j, GREEN, MAXRGB);
+                        tgt.setPixel(i, j, BLUE, MINRGB);
+                    } else {
+                        tgt.setPixel(i, j, RED, MAXRGB);
+                        tgt.setPixel(i, j, GREEN, MAXRGB);
+                        tgt.setPixel(i, j, BLUE, MAXRGB);
+                    }
+                }
+            }
+        }
+    }
+}

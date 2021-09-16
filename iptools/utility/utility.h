@@ -39,12 +39,20 @@ struct w_roi
 };
 
 // Rectangular region of intrest - colorAddjustBrightness
-struct rgb_roi    
+struct cm_roi    
 {
     int x, y;
     int sx, sy;
-    int red, green, blue;
-    int threshold;
+    int more_c;
+};
+
+// Rectangular region of intrest - colorBinarization
+struct cb_roi    
+{
+    int x, y;
+    int sx, sy;
+    int tc;
+    int cr, cg, cb;
 };
 
 class utility {
@@ -53,14 +61,13 @@ public:
     virtual ~utility();
     static std::string intToString(int number);
     static int checkValue(int value);
-    // template <typename RoI>
-    // static bool checkRoI (vector<RoI> vroi);
     static void addGrey(image &src, image &tgt, vector<v_roi> rect);
     static void binarize(image &src, image &tgt, vector<t_roi> rect);
     static void scale(image &src, image &tgt, float ratio);
     static void adjustBrightness(image &src, image &tgt, vector<vtv_roi> rect);
     static void smoothing(image &src, image &tgt, vector<w_roi> rect);
-    static void colorAdjustBrightness(image &src, image &tgt, vector<rgb_roi> rect);
+    static void colorAdjustBrightness(image &src, image &tgt, vector<cm_roi> rect);
+    static void colorBinarize(image &src, image &tgt, vector<cb_roi> rect);
 };
 
 #endif

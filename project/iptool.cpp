@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
             /* Add Intensity */
             vector<v_roi> vroi;
             v_roi rect;
-            while (rect.sx != 0 && rect.sy != 0) {
+            do {
                 rect.value = atoi(strtok(NULL, " "));
                 rect.x = atoi(strtok(NULL, " "));
                 rect.y = atoi(strtok(NULL, " "));
@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
                 rect.sy = atoi(strtok(NULL, " "));
 
                 vroi.push_back(rect);
-            }
+            } while (rect.sx != 0 && rect.sy != 0);
             vroi.pop_back();       
             utility::addGrey(src, tgt, vroi);
 
@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
             /* Thresholding */
             vector<t_roi> vroi;
             t_roi rect;
-            while (rect.sx != 0 && rect.sy != 0) {
+            do {
                 rect.threshold = atoi(strtok(NULL, " "));
                 rect.x = atoi(strtok(NULL, " "));
                 rect.y = atoi(strtok(NULL, " "));
@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
                 rect.sy = atoi(strtok(NULL, " "));
 
                 vroi.push_back(rect);
-            }
+            } while (rect.sx != 0 && rect.sy != 0);
             vroi.pop_back(); 
             utility::binarize(src, tgt, vroi);
 
@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
             /* Image brightness */
             vector<vtv_roi> vroi;
             vtv_roi rect;
-            while (rect.sx != 0 && rect.sy != 0) {
+            do {
                 rect.threshold = atoi(strtok(NULL, " "));
                 rect.value1 = atoi(strtok(NULL, " "));
                 rect.value2 = atoi(strtok(NULL, " "));
@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
                 rect.sy = atoi(strtok(NULL, " "));
 
                 vroi.push_back(rect);
-            }
+            } while (rect.sx != 0 && rect.sy != 0);
             vroi.pop_back();
             utility::adjustBrightness(src, tgt, vroi);
 
@@ -126,7 +126,8 @@ int main(int argc, char **argv) {
             /* Smoothing Filter */
             vector<w_roi> vroi;
             w_roi rect;
-            while (rect.sx != 0 && rect.sy != 0) {
+        
+            do {
                 rect.window = atoi(strtok(NULL, " "));
                 rect.x = atoi(strtok(NULL, " "));
                 rect.y = atoi(strtok(NULL, " "));
@@ -134,28 +135,48 @@ int main(int argc, char **argv) {
                 rect.sy = atoi(strtok(NULL, " "));
 
                 vroi.push_back(rect);
-            }
+            } while (rect.sx != 0 && rect.sy != 0);
             vroi.pop_back();
             utility::smoothing(src, tgt, vroi);
 
         } else if (strcmp(pch, "cbm") == 0) {
+            cout << "cbm" << endl;
             /* Color image brightness */
-            vector<rgb_roi> vroi;
-            rgb_roi rect;
-            while (rect.sx != 0 && rect.sy != 0) {
+            vector<cm_roi> vroi;
+            cout << "inja" << endl;
+            cm_roi rect;
+            do {
                 // rect.threshold = atoi(strtok(NULL, " "));
-                rect.red = atoi(strtok(NULL, " "));
-                rect.green = atoi(strtok(NULL, " "));
-                rect.blue = atoi(strtok(NULL, " "));
+                cout << "inja too" << endl;
+                rect.more_c = atoi(strtok(NULL, " "));
                 rect.x = atoi(strtok(NULL, " "));
                 rect.y = atoi(strtok(NULL, " "));
                 rect.sx = atoi(strtok(NULL, " "));
                 rect.sy = atoi(strtok(NULL, " "));
 
                 vroi.push_back(rect);
-            }
+            } while (rect.sx != 0 && rect.sy != 0);
             vroi.pop_back();
             utility::colorAdjustBrightness(src, tgt, vroi);
+
+        } else if (strcmp(pch, "cb") == 0) {
+            /* Color image brightness */
+            vector<cb_roi> vroi;
+            cb_roi rect;
+            do {
+                rect.tc = atoi(strtok(NULL, " "));
+                rect.cr = atoi(strtok(NULL, " "));
+                rect.cg = atoi(strtok(NULL, " "));
+                rect.cb = atoi(strtok(NULL, " "));
+                rect.x = atoi(strtok(NULL, " "));
+                rect.y = atoi(strtok(NULL, " "));
+                rect.sx = atoi(strtok(NULL, " "));
+                rect.sy = atoi(strtok(NULL, " "));
+
+                vroi.push_back(rect);
+            } while (rect.sx != 0 && rect.sy != 0);
+            vroi.pop_back();
+            utility::colorBinarize(src, tgt, vroi);
 
         } else {
             printf("No function: %s\n", pch);
