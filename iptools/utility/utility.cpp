@@ -82,14 +82,14 @@ void utility::addGrey(image &src, image &tgt, vector<v_roi> rect) {
             }
         }
 
-        // Print vector
-        for (int i = 0; i < rect.size(); i++) {
-            cout << "/*------------------------*/" << endl;
-            cout << "Add Gray" << endl;
-            cout << "Value: " << rect[i].value << endl;
-            cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
-            cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
-        }
+        // // Print vector
+        // for (int i = 0; i < rect.size(); i++) {
+        //     cout << "/*------------------------*/" << endl;
+        //     cout << "Add Gray" << endl;
+        //     cout << "Value: " << rect[i].value << endl;
+        //     cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+        //     cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+        // }
         
         // Make changes to region of intrest
         for (int r = 0; r < rect.size(); r++) {
@@ -113,14 +113,14 @@ void utility::binarize(image &src, image &tgt, vector<t_roi> rect) {
             }
         }
 
-        // Print vector
-        for (int i = 0; i < rect.size(); i++) {
-            cout << "/*------------------------*/" << endl;
-            cout << "Binarize" << endl;
-            cout << "Threshold: " << rect[i].threshold << endl;
-            cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
-            cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
-        }
+        // // Print vector
+        // for (int i = 0; i < rect.size(); i++) {
+        //     cout << "/*------------------------*/" << endl;
+        //     cout << "Binarize" << endl;
+        //     cout << "Threshold: " << rect[i].threshold << endl;
+        //     cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+        //     cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+        // }
 
         // Make changes to region of intrest
         for (int r = 0; r < rect.size(); r++) {
@@ -173,15 +173,15 @@ void utility::adjustBrightness(image &src, image &tgt, vector<vtv_roi> rect) {
             }
         }
 
-        // Print vector
-        for (int i = 0; i < rect.size(); i++) {
-            cout << "/*------------------------*/" << endl;
-            cout << "Adjust Brightness" << endl;
-            cout << "Threshold: " << rect[i].threshold << endl;
-            cout << "Value1, Value2: " << rect[i].value1 << ", " << rect[i].value2 << endl;
-            cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
-            cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
-        }
+        // // Print vector
+        // for (int i = 0; i < rect.size(); i++) {
+        //     cout << "/*------------------------*/" << endl;
+        //     cout << "Adjust Brightness" << endl;
+        //     cout << "Threshold: " << rect[i].threshold << endl;
+        //     cout << "Value1, Value2: " << rect[i].value1 << ", " << rect[i].value2 << endl;
+        //     cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+        //     cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+        // }
 
         // Make changes to region of intrest
         for (int r = 0; r < rect.size(); r++) {
@@ -209,14 +209,14 @@ void utility::smoothing(image &src, image &tgt, vector<w_roi> rect) {
             }
         }
 
-        // Print vector
-        for (int i = 0; i < rect.size(); i++) {
-            cout << "/*------------------------*/" << endl;
-            cout << "Smoothing" << endl;
-            cout << "Window: " << rect[i].window << endl;
-            cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
-            cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
-        }
+        // // Print vector
+        // for (int i = 0; i < rect.size(); i++) {
+        //     cout << "/*------------------------*/" << endl;
+        //     cout << "Smoothing" << endl;
+        //     cout << "Window: " << rect[i].window << endl;
+        //     cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+        //     cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+        // }
 
 
         // Make changes to region of intrest
@@ -250,14 +250,14 @@ void utility::colorAdjustBrightness(image &src, image &tgt, vector<cm_roi> rect)
             }
         }
 
-        // Print vector
-        for (int i = 0; i < rect.size(); i++) {
-            cout << "/*------------------------*/" << endl;
-            cout << "Color Brightness Modifying" << endl;
-            cout << "More-C: " << rect[i].more_c << endl;
-            cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
-            cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
-        }
+        // // Print vector
+        // for (int i = 0; i < rect.size(); i++) {
+        //     cout << "/*------------------------*/" << endl;
+        //     cout << "Color Brightness Modifying" << endl;
+        //     cout << "More-C: " << rect[i].more_c << endl;
+        //     cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+        //     cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+        // }
 
 
         // Make changes to region of intrest
@@ -286,14 +286,14 @@ void utility::colorBinarize(image &src, image &tgt, vector<cb_roi> rect) {
             }
         }
 
-        // Print vector
-        for (int i = 0; i < rect.size(); i++) {
-            cout << "/*------------------------*/" << endl;
-            cout << "Color Binarize" << endl;
-            cout << "(CR,CG,CB): (" << rect[i].cr << "," << rect[i].cg << "," << rect[i].cb << ")" << endl;
-            cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
-            cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
-        }
+        // // Print vector
+        // for (int i = 0; i < rect.size(); i++) {
+        //     cout << "/*------------------------*/" << endl;
+        //     cout << "Color Binarize" << endl;
+        //     cout << "(CR,CG,CB): (" << rect[i].cr << "," << rect[i].cg << "," << rect[i].cb << ")" << endl;
+        //     cout << "(X,Y): (" << rect[i].x << "," << rect[i].y << ")" << endl;
+        //     cout << "(SX,SY): (" << rect[i].sx << "," << rect[i].sy << ")" << endl;
+        // }
 
         int tc_original;
         // Make changes to region of intrest

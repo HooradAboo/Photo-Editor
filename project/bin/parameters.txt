@@ -2,4 +2,5 @@ SampleImages\Gray\baboon.pgm OutputImages\baboon_add.pgm add 2 70 0 0 100 400 10
 SampleImages\Gray\floor.pgm OutputImages\floor_binarize.pgm binarize 3 120 0 0 500 100 160 100 200 300 300 89 420 150 500 360
 SampleImages\Gray\lena.pgm OutputImages\lena_brightness.pgm brightness 3 128 50 70 50 180 300 512 180 30 40 50 30 462 150 100 50 80 301 200 512 300
 SampleImages\Gray\tree.pgm OutputImages\tree_smoothing.pgm smoothing 2 3 80 80 230 350 5 231 50 400 300
-SampleImages\Color\flower.ppm OutputImages\flower.ppm cbinarize 4 150 10 10 10 0 0 100 100 200 0 255 0 230 80 430 280 100 20 180 20 0 270 100 374 200 0 255 0 430 310 500 374
+SampleImages\Color\frog.ppm OutputImages\frog_brightness.ppm cbrightness 2 100 100 0 230 200 10 250 30 480 260
+SampleImages\Color\flower.ppm OutputImages\flower_binarize.ppm cbinarize 4 150 10 10 10 0 0 100 100 200 0 255 0 230 80 430 280 100 20 180 20 0 270 100 374 200 0 255 0 430 310 500 374

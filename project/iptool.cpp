@@ -24,19 +24,6 @@ using namespace std;
 
 #define MAXLEN 256
 
-bool isGray (char* name) {
-    for (int i = 0; i <= strlen(name); i++) {
-        // cout << name[i] << endl;
-        if (name[i] == 'g') {
-            // cout << "inja" << endl;
-            if (name[i-2] == '.' && name[i-1] == 'p' && name[i+1] == 'm') {
-                // cout << "inja1" << endl;
-                return true;
-            }
-        }
-    }
-    return false;
-}
 
 int main(int argc, char **argv) {
     image src, tgt;
@@ -136,7 +123,6 @@ int main(int argc, char **argv) {
             cm_roi rect;
             int roi_num = atoi(strtok(NULL, " "));
             for (int i = 0; i < roi_num; i++) {
-                // rect.threshold = atoi(strtok(NULL, " "));
                 rect.more_c = atoi(strtok(NULL, " "));
                 rect.x = atoi(strtok(NULL, " "));
                 rect.y = atoi(strtok(NULL, " "));
