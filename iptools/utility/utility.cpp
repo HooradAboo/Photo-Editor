@@ -319,3 +319,46 @@ void utility::colorBinarize(image &src, image &tgt, vector<cb_roi> rect) {
         }
     }
 }
+
+/*-----------------------------------------------------------------------**/
+
+void createHistogram(image &src, roi rect, vector<int> &vec) {
+    int total_pixel = rect.sx * rect.sy;
+    // number of pixels
+    for (int i = rect.y; i < rect.y+rect.sy; i++) {
+        for (int j = rect.x; j < rect.x+rect.sx; j++) {
+            vec[src.getPixel(i, j)] += 1;
+        }
+    }
+}
+
+void plotHistogram(vector<int> vec) {
+    int len = vec.size();
+    for (int i = 0; i < 10; i++) {
+        cout << "  " << i << ": ";
+        for (int j = 0; j < vec[i]/5; j++) {
+            cout << "*";
+        }
+        cout << endl;
+    }
+    for (int i = 10; i < 100; i++) {
+        cout << " " << i << ": ";
+        for (int j = 0; j < vec[i]/5; j++) {
+            cout << "*";
+        }
+        cout << endl;
+    }
+    for (int i = 100; i < len; i++) {
+        cout << i << ": ";
+        for (int j = 0; j < vec[i]/5; j++) {
+            cout << "*";
+        }
+        cout << endl;
+    }
+}
+
+void utility::histogramStretching(image &src, roi rect) {
+    vector<int> nk(MAXRGB+1, 0); 
+    createHistogram(src, rect, nk);
+    plotHistogram(nk);
+}
