@@ -28,7 +28,7 @@ using namespace std;
 int main(int argc, char **argv) {
     image src, tgt;
     FILE *fp;
-    char str[MAXLEN];
+    char str[MAXLEN], input[MAXLEN];
     char outfile[MAXLEN];
     char *pch;
     if ((fp = fopen(argv[1], "r")) == NULL) {
@@ -37,6 +37,7 @@ int main(int argc, char **argv) {
     }
 
     while (fgets(str, MAXLEN, fp) != NULL) {
+        strcpy (input, str);
         pch = strtok(str, " ");
         src.read(pch);
 
@@ -152,17 +153,8 @@ int main(int argc, char **argv) {
             }
             utility::colorBinarize(src, tgt, vroi);
 
-        } else if (strcmp(pch, "histogram") == 0) {
-            /* Histogram Plot */
-            roi rect;
-            rect.x = atoi(strtok(NULL, " "));
-            rect.y = atoi(strtok(NULL, " "));
-            rect.sx = atoi(strtok(NULL, " "));
-            rect.sy = atoi(strtok(NULL, " "));
-            // range ab;
-            // ab.a = 
-            vector<int> histogram(256, 0);
-            utility::histogramStretching(src, rect);
+        } else if (strcmp(pch, "stretching") == 0) {
+            utility::stretching(src, tgt, input);
 
         } else {
             printf("No function: %s\n", pch);
@@ -174,4 +166,5 @@ int main(int argc, char **argv) {
     fclose(fp);
     return 0;
 }
+
 

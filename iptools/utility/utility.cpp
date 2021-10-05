@@ -1,5 +1,6 @@
 #include "utility.h"
 
+#define MAXLEN 256
 #define MAXRGB 255
 #define MINRGB 0
 
@@ -15,6 +16,16 @@ int utility::checkValue(int value) {
     if (value < MINRGB)
         return MINRGB;
     return value;
+}
+
+void copyImage (image &src, image &tgt) {
+    // Make a copy of origin image to target image
+    tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
+    for (int i = 0; i < src.getNumberOfRows(); i++) {
+        for (int j = 0; j < src.getNumberOfColumns(); j++) {
+            tgt.setPixel(i, j, src.getPixel(i, j));
+        }
+    }
 }
 
 template <typename RoI>
@@ -74,13 +85,8 @@ bool checkRoI (vector<RoI> vroi) {
 /*-----------------------------------------------------------------------**/
 void utility::addGrey(image &src, image &tgt, vector<v_roi> rect) {
     if (checkRoI (rect)) {
-        // Make a copy of origin image to target image
-        tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns()); 
-        for (int i = 0; i < src.getNumberOfRows(); i++) {
-            for (int j = 0; j < src.getNumberOfColumns(); j++) {
-                tgt.setPixel(i, j, src.getPixel(i, j));
-            }
-        }
+        // // Make a copy of origin image to target image
+        copyImage (src, tgt);
 
         // // Print vector
         // for (int i = 0; i < rect.size(); i++) {
@@ -106,12 +112,7 @@ void utility::addGrey(image &src, image &tgt, vector<v_roi> rect) {
 void utility::binarize(image &src, image &tgt, vector<t_roi> rect) {
     if (checkRoI (rect)) {
         // Make a copy of origin image to target image
-        tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
-        for (int i = 0; i < src.getNumberOfRows(); i++) {
-            for (int j = 0; j < src.getNumberOfColumns(); j++) {
-                tgt.setPixel(i, j, src.getPixel(i, j));
-            }
-        }
+        copyImage (src, tgt);
 
         // // Print vector
         // for (int i = 0; i < rect.size(); i++) {
@@ -166,12 +167,7 @@ void utility::scale(image &src, image &tgt, float ratio) {
 void utility::adjustBrightness(image &src, image &tgt, vector<vtv_roi> rect) {
     if (checkRoI (rect)) {
         // Make a copy of origin image to target image
-        tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
-        for (int i = 0; i < src.getNumberOfRows(); i++) {
-            for (int j = 0; j < src.getNumberOfColumns(); j++) {
-                tgt.setPixel(i, j, src.getPixel(i, j));
-            }
-        }
+        copyImage (src, tgt);
 
         // // Print vector
         // for (int i = 0; i < rect.size(); i++) {
@@ -202,12 +198,7 @@ void utility::adjustBrightness(image &src, image &tgt, vector<vtv_roi> rect) {
 void utility::smoothing(image &src, image &tgt, vector<w_roi> rect) {
     if (checkRoI (rect)) {
         // Make a copy of origin image to target image
-        tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
-        for (int i = 0; i < src.getNumberOfRows(); i++) {
-            for (int j = 0; j < src.getNumberOfColumns(); j++) {
-                tgt.setPixel(i, j, src.getPixel(i, j));
-            }
-        }
+        copyImage (src, tgt);
 
         // // Print vector
         // for (int i = 0; i < rect.size(); i++) {
@@ -241,14 +232,7 @@ void utility::smoothing(image &src, image &tgt, vector<w_roi> rect) {
 void utility::colorAdjustBrightness(image &src, image &tgt, vector<cm_roi> rect) {
     if (checkRoI (rect)) {
         // Make a copy of origin image to target image
-        tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
-        for (int i = 0; i < src.getNumberOfRows(); i++) {
-            for (int j = 0; j < src.getNumberOfColumns(); j++) {
-                tgt.setPixel(i, j, RED, src.getPixel(i, j, RED));
-                tgt.setPixel(i, j, GREEN, src.getPixel(i, j, GREEN));
-                tgt.setPixel(i, j, BLUE, src.getPixel(i, j, BLUE));
-            }
-        }
+        copyImage (src, tgt);
 
         // // Print vector
         // for (int i = 0; i < rect.size(); i++) {
@@ -277,14 +261,7 @@ void utility::colorAdjustBrightness(image &src, image &tgt, vector<cm_roi> rect)
 void utility::colorBinarize(image &src, image &tgt, vector<cb_roi> rect) {
     if (checkRoI (rect)) {
         // Make a copy of origin image to target image
-        tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
-        for (int i = 0; i < src.getNumberOfRows(); i++) {
-            for (int j = 0; j < src.getNumberOfColumns(); j++) {
-                tgt.setPixel(i, j, RED, src.getPixel(i, j, RED));
-                tgt.setPixel(i, j, GREEN, src.getPixel(i, j, GREEN));
-                tgt.setPixel(i, j, BLUE, src.getPixel(i, j, BLUE));
-            }
-        }
+        copyImage (src, tgt);
 
         // // Print vector
         // for (int i = 0; i < rect.size(); i++) {
@@ -330,6 +307,12 @@ void createHistogram(image &src, roi rect, vector<int> &vec) {
             vec[src.getPixel(i, j)] += 1;
         }
     }
+
+    // // print histogram vector
+    // for (int i = 0; i < vec.size(); i++) {
+    //     cout << vec[i] << " ";
+    // }
+    // cout << endl;
 }
 
 void plotHistogram(vector<int> vec) {
@@ -357,8 +340,63 @@ void plotHistogram(vector<int> vec) {
     }
 }
 
-void utility::histogramStretching(image &src, roi rect) {
-    vector<int> nk(MAXRGB+1, 0); 
-    createHistogram(src, rect, nk);
-    plotHistogram(nk);
+void inja(int num = 1) {
+    cout << "inja" << num << endl;
+}
+
+void utility::stretching(image &src, image &tgt, char *input) {
+    #define c  0
+    #define d  255
+
+    cout << "input: " << input << endl;
+
+    roi rect;
+    interval range;
+
+    int pixel, new_pixel;
+
+    copyImage (src, tgt);
+
+    strtok(input, " ");
+    strtok(NULL, " ");
+    strtok(NULL, " ");
+
+    int roi_num = atoi(strtok(NULL, " "));
+    for (int r = 0; r < roi_num; r++){
+        rect.x = atoi(strtok(NULL, " "));
+        rect.y = atoi(strtok(NULL, " "));
+        rect.sx = atoi(strtok(NULL, " "));
+        rect.sy = atoi(strtok(NULL, " "));
+
+        range.a = atoi(strtok(NULL, " "));
+        range.b = atoi(strtok(NULL, " "));
+
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
+        cout << "(a,b): (" << range.a << "," << range.b << ")" << endl;
+
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+                pixel = src.getPixel(i, j);
+                // cout << "pix:" << pixel << endl;
+                if (0 <= pixel && pixel <= range.a) {
+                    tgt.setPixel(i, j, 0);
+                } else if (range.a < pixel && pixel < range.b) {
+                    new_pixel = round(double(pixel * ((range.b - range.a)/double(d - c))) + range.a);
+                    tgt.setPixel(i, j, checkValue(new_pixel));
+                    // cout << "new: " << tgt.getPixel(i,j) << endl;
+                } else if (range.b <= pixel && pixel <= 255) {
+                    tgt.setPixel(i, j, 255);
+                }
+            }
+        }
+
+        // vector<int> nk(256, 0); 
+        // createHistogram(src, rect, nk);
+        // vector<int> mk(256, 0); 
+        // createHistogram(tgt, rect, mk);
+
+        // plotHistogram(nk);
+        // plotHistogram(mk);
+    }
 }

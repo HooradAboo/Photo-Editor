@@ -5,13 +5,14 @@
 #include <sstream>
 #include <math.h>
 #include <algorithm>
+#include <string.h>
 
 struct roi {
     int x, y;
     int sx, sy;
 };
 
-struct range {
+struct interval {
     int a;
     int b;
 };
@@ -73,7 +74,8 @@ public:
     static void smoothing(image &src, image &tgt, vector<w_roi> rect);
     static void colorAdjustBrightness(image &src, image &tgt, vector<cm_roi> rect);
     static void colorBinarize(image &src, image &tgt, vector<cb_roi> rect);
-    static void histogramStretching(image &src, roi rect);
+    static void stretching(image &src, image &tgt, char *input);
+    // static void kossher(int argc, char **argv);
 };
 
 #endif

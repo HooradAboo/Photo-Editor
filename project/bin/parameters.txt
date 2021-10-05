@@ -1,1 +1,1 @@
-baboon.pgm baboon_out.pgm histogram 0 0 100 100
+baboon.pgm baboon_out.pgm stretching 1 0 0 400 400 20 200
