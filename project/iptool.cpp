@@ -156,6 +156,9 @@ int main(int argc, char **argv) {
         } else if (strcmp(pch, "stretching") == 0) {
             utility::stretching(src, tgt, input);
 
+        } else if (strcmp(pch, "cstretching") == 0) {
+            utility::colorStretching(src, tgt, input);
+
         } else {
             printf("No function: %s\n", pch);
             continue;

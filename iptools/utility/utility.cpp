@@ -23,10 +23,22 @@ void copyImage (image &src, image &tgt) {
     tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
     for (int i = 0; i < src.getNumberOfRows(); i++) {
         for (int j = 0; j < src.getNumberOfColumns(); j++) {
-            tgt.setPixel(i, j, src.getPixel(i, j));
+            tgt.setPixel(i, j, RED, src.getPixel(i, j, RED));
+            tgt.setPixel(i, j, GREEN, src.getPixel(i, j, GREEN));
+            tgt.setPixel(i, j, BLUE, src.getPixel(i, j, BLUE));
         }
     }
 }
+
+// void copyImage (image &src, image &tgt) {
+//     // Make a copy of origin image to target image
+//     tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
+//     for (int i = 0; i < src.getNumberOfRows(); i++) {
+//         for (int j = 0; j < src.getNumberOfColumns(); j++) {
+//             tgt.setPixel(i, j, src.getPixel(i, j));
+//         }
+//     }
+// }
 
 template <typename RoI>
 bool checkRoI (vector<RoI> vroi) {
@@ -108,6 +120,7 @@ void utility::addGrey(image &src, image &tgt, vector<v_roi> rect) {
     }
 }
 
+
 /*-----------------------------------------------------------------------**/
 void utility::binarize(image &src, image &tgt, vector<t_roi> rect) {
     if (checkRoI (rect)) {
@@ -138,6 +151,7 @@ void utility::binarize(image &src, image &tgt, vector<t_roi> rect) {
     }
 }
 
+
 /*-----------------------------------------------------------------------**/
 void utility::scale(image &src, image &tgt, float ratio) {
     int rows = (int) ((float) src.getNumberOfRows() * ratio);
@@ -162,6 +176,7 @@ void utility::scale(image &src, image &tgt, float ratio) {
         }
     }
 }
+
 
 /*-----------------------------------------------------------------------**/
 void utility::adjustBrightness(image &src, image &tgt, vector<vtv_roi> rect) {
@@ -193,6 +208,7 @@ void utility::adjustBrightness(image &src, image &tgt, vector<vtv_roi> rect) {
         }
     }
 }
+
 
 /*-----------------------------------------------------------------------**/
 void utility::smoothing(image &src, image &tgt, vector<w_roi> rect) {
@@ -228,6 +244,7 @@ void utility::smoothing(image &src, image &tgt, vector<w_roi> rect) {
     }
 }
 
+
 /*-----------------------------------------------------------------------**/
 void utility::colorAdjustBrightness(image &src, image &tgt, vector<cm_roi> rect) {
     if (checkRoI (rect)) {
@@ -256,6 +273,7 @@ void utility::colorAdjustBrightness(image &src, image &tgt, vector<cm_roi> rect)
         }
     }
 }
+
 
 /*-----------------------------------------------------------------------**/
 void utility::colorBinarize(image &src, image &tgt, vector<cb_roi> rect) {
@@ -297,13 +315,14 @@ void utility::colorBinarize(image &src, image &tgt, vector<cb_roi> rect) {
     }
 }
 
+
 /*-----------------------------------------------------------------------**/
 
 void createHistogram(image &src, roi rect, vector<int> &vec) {
-    int total_pixel = rect.sx * rect.sy;
+    int total_pixel = (rect.sx-rect.x) * (rect.sy-rect.y);
     // number of pixels
-    for (int i = rect.y; i < rect.y+rect.sy; i++) {
-        for (int j = rect.x; j < rect.x+rect.sx; j++) {
+    for (int i = rect.y; i < rect.sy; i++) {
+        for (int j = rect.x; j < rect.sx; j++) {
             vec[src.getPixel(i, j)] += 1;
         }
     }
@@ -340,15 +359,9 @@ void plotHistogram(vector<int> vec) {
     }
 }
 
-void inja(int num = 1) {
-    cout << "inja" << num << endl;
-}
-
 void utility::stretching(image &src, image &tgt, char *input) {
     #define c  0
     #define d  255
-
-    cout << "input: " << input << endl;
 
     roi rect;
     interval range;
@@ -393,6 +406,122 @@ void utility::stretching(image &src, image &tgt, char *input) {
 
         // vector<int> nk(256, 0); 
         // createHistogram(src, rect, nk);
+        // vector<int> mk(256, 0); 
+        // createHistogram(tgt, rect, mk);
+
+        // plotHistogram(nk);
+        // plotHistogram(mk);
+    }
+}
+
+
+/*-----------------------------------------------------------------------**/
+void createColorHistogram(image &src, roi rect, vector<int> &vec) {
+    // int total_pixel = (rect.sx-rect.x) * (rect.sy-rect.y);
+
+    // // creat red channel histogram
+    // for (int i = rect.y; i < rect.sy; i++) {
+    //     for (int j = rect.x; j < rect.sx; j++) {
+    //         vec[0][src.getPixel(i, j, RED)] += 1;
+    //     }
+    // }
+
+    // // creat green channel histogram
+    // for (int i = rect.y; i < rect.sy; i++) {
+    //     for (int j = rect.x; j < rect.sx; j++) {
+    //         vec[1][src.getPixel(i, j, GREEN)] += 1;
+    //     }
+    // }
+
+    // // creat blue channel histogram
+    // for (int i = rect.y; i < rect.sy; i++) {
+    //     for (int j = rect.x; j < rect.sx; j++) {
+    //         vec[2][src.getPixel(i, j, BLUE)] += 1;
+    //     }
+    // }    
+
+    // // // print histogram vector
+    // // for (int i = 0; i < vec.size(); i++) {
+    // //     cout << vec[i] << " ";
+    // // }
+    // // cout << endl;
+}
+
+void utility::colorStretching(image &src, image &tgt, char *input) {
+    #define c  0
+    #define d  255
+
+    roi rect;
+    interval range;
+
+    int pixelR, pixelG, pixelB, new_pixel;
+
+    copyImage (src, tgt);
+
+    // remove three first parameter (src, tgt, function name) from input string
+    strtok(input, " ");
+    strtok(NULL, " ");
+    strtok(NULL, " ");
+
+    int roi_num = atoi(strtok(NULL, " "));
+    for (int r = 0; r < roi_num; r++){
+        rect.x = atoi(strtok(NULL, " "));
+        rect.y = atoi(strtok(NULL, " "));
+        rect.sx = atoi(strtok(NULL, " "));
+        rect.sy = atoi(strtok(NULL, " "));
+
+        range.a = atoi(strtok(NULL, " "));
+        range.b = atoi(strtok(NULL, " "));
+
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
+        cout << "(a,b): (" << range.a << "," << range.b << ")" << endl;
+
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+                // stretch Red Channel
+                pixelR = src.getPixel(i, j, RED);
+                // cout << "pix:" << pixel << endl;
+                if (0 <= pixelR && pixelR <= range.a) {
+                    tgt.setPixel(i, j, RED, 0);
+                } else if (range.a < pixelR && pixelR < range.b) {
+                    new_pixel = round(double(pixelR * ((range.b - range.a)/double(d - c))) + range.a);
+                    tgt.setPixel(i, j, RED, checkValue(new_pixel));
+                    // cout << "new: " << tgt.getPixel(i,j) << endl;
+                } else if (range.b <= pixelR && pixelR <= 255) {
+                    tgt.setPixel(i, j, RED, 255);
+                }
+                
+                // stretch Green Channel
+                pixelG = src.getPixel(i, j, GREEN);
+                // cout << "pix:" << pixel << endl;
+                if (0 <= pixelG && pixelG <= range.a) {
+                    tgt.setPixel(i, j, GREEN, 0);
+                } else if (range.a < pixelG && pixelG < range.b) {
+                    new_pixel = round(double(pixelG * ((range.b - range.a)/double(d - c))) + range.a);
+                    tgt.setPixel(i, j, GREEN, checkValue(new_pixel));
+                    // cout << "new: " << tgt.getPixel(i,j) << endl;
+                } else if (range.b <= pixelG && pixelG <= 255) {
+                    tgt.setPixel(i, j, GREEN, 255);
+                }
+
+                // stretch Blue Channel
+                pixelR = src.getPixel(i, j, BLUE);
+                // cout << "pix:" << pixel << endl;
+                if (0 <= pixelB && pixelB <= range.a) {
+                    tgt.setPixel(i, j, BLUE, 0);
+                } else if (range.a < pixelB && pixelB < range.b) {
+                    new_pixel = round(double(pixelB * ((range.b - range.a)/double(d - c))) + range.a);
+                    tgt.setPixel(i, j, BLUE, checkValue(new_pixel));
+                    // cout << "new: " << tgt.getPixel(i,j) << endl;
+                } else if (range.b <= pixelB && pixelB <= 255) {
+                    tgt.setPixel(i, j, BLUE, 255);
+                }
+            }
+        }
+
+        // vector<int> nk(256, 0); 
+        // createColorHistogram(src, rect, nk);
         // vector<int> mk(256, 0); 
         // createHistogram(tgt, rect, mk);
 

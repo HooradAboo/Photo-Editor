@@ -75,6 +75,8 @@ public:
     static void colorAdjustBrightness(image &src, image &tgt, vector<cm_roi> rect);
     static void colorBinarize(image &src, image &tgt, vector<cb_roi> rect);
     static void stretching(image &src, image &tgt, char *input);
+    static void colorStretching(image &src, image &tgt, char *input);
+
     // static void kossher(int argc, char **argv);
 };
 
