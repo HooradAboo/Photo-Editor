@@ -1,1 +1,1 @@
-baboon.pgm out1.pgm stretching 1 0 0 400 400 b 0 200
+baboon.ppm out.ppm cstretching 1 0 0 510 510 30 250

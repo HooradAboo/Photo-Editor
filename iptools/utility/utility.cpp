@@ -3,6 +3,7 @@
 #define MAXLEN 256
 #define MAXRGB 255
 #define MINRGB 0
+#define H_SIZE 300
 
 std::string utility::intToString(int number) {
     std::stringstream ss;//create a stringstream
@@ -81,31 +82,6 @@ bool checkRoI (vector<RoI> vroi) {
         }
     }
     return true;
-}
-
-void plotHistogram(vector<int> vec, int pixels_num) {
-    #define H_SIZE 256
-    image hist;
-    hist.resize(H_SIZE, H_SIZE);
-
-    // normalize the number of each intensity
-    for (int i = 0; i < vec.size(); i++) {
-        cout << vec[i] << " ";
-        vec[i] = int((vec[i] / double(pixels_num)) * 2560); 
-    }
-
-    for (int i = 0; i < H_SIZE; i++) {
-        for (int j = 0; j < H_SIZE; j++) {
-            int tmp = vec[i];
-            if (j < vec[i]) {
-                hist.setPixel(i, j, 255);
-            } else {
-                hist.setPixel(i, j, 0);
-            }  
-        }
-    }
-    char outfile[MAXLEN] = "hist.pgm";
-    hist.save(outfile);
 }
 
 
@@ -275,6 +251,47 @@ void utility::colorBinarize(image &src, image &tgt, vector<cb_roi> rect) {
 
 
 /*-----------------------------------------------------------------------**/
+int cnt = 0;
+void plotHistogram(vector<int> vec, int pixels_num) {
+    image hist;
+    hist.resize(H_SIZE, H_SIZE);
+
+    // normalize the number of each intensity
+    for (int i = 0; i < vec.size(); i++) {
+        vec[i] = int((vec[i] / double(pixels_num)) * 2560); 
+    }
+
+    for (int i = 0; i < H_SIZE; i++) {
+        for (int j = 0; j < H_SIZE; j++) {
+            int tmp = vec[i];
+            if (j < vec[i]) {
+                hist.setPixel(i, j, 255);
+            } else {
+                hist.setPixel(i, j, 0);
+            }  
+        }
+    }
+
+    // convert file name from string to char*
+    char outfile[MAXLEN];
+    string name = "hist_" + to_string(cnt++) + ".pgm";
+    strcpy(outfile, name.c_str());
+    // cnt++;
+    hist.save(outfile);
+}
+
+void createHistogram(image &src, roi rect) {
+    vector<int> channelR (256, 0);
+    for (int i = rect.y; i < rect.sy; i++) {
+        for (int j = rect.x; j < rect.sx; j++) {
+            channelR[src.getPixel(i, j, RED)] += 1;
+        }
+    }
+
+    int total_pixel = (rect.sy - rect.y) * (rect.sx - rect.x);
+    plotHistogram(channelR, total_pixel);
+}
+
 void utility::stretching(image &src, image &tgt, char *input) {
     #define c  0
     #define d  255
@@ -338,16 +355,78 @@ void utility::stretching(image &src, image &tgt, char *input) {
 
 
 /*-----------------------------------------------------------------------**/
-void createColorHistogram(image &src, roi rect, vector<int> &vec) {
+void createColorHistogram(image &src, roi rect) {
     vector<int> channelR (256, 0);
+    vector<int> channelG (256, 0);
+    vector<int> channelB (256, 0);
     for (int i = rect.y; i < rect.sy; i++) {
         for (int j = rect.x; j < rect.sx; j++) {
             channelR[src.getPixel(i, j, RED)] += 1;
+            channelG[src.getPixel(i, j, GREEN)] += 1;
+            channelB[src.getPixel(i, j, BLUE)] += 1;
         }
     }
-
     int total_pixel = (rect.sy - rect.y) * (rect.sx - rect.x);
     plotHistogram(channelR, total_pixel);
+    plotHistogram(channelG, total_pixel);
+    plotHistogram(channelB, total_pixel);
+}
+
+void rgb2Hsi (image &rgb, image &hsv) {
+    hsv.resize(rgb.getNumberOfRows(), rgb.getNumberOfColumns());
+
+    vector<int> channelH (256, 0);
+    vector<int> channelS (256, 0);
+    vector<int> channelI (256, 0);
+    
+    double rgb_sum;
+    double r, g, b;
+    double h, s, v;
+    double theta;
+
+    for (int i = 0; i < rgb.getNumberOfRows(); i++) {
+        for (int j = 0; j < rgb.getNumberOfColumns(); j++) {
+            // cout << "RGB: (" << rgb.getPixel(i, j, RED) << ", " << rgb.getPixel(i, j, GREEN) << ", " << rgb.getPixel(i, j, BLUE) << ")" << endl;
+
+            // normalizeing RGB value
+            rgb_sum = (rgb.getPixel(i, j, RED)) + (rgb.getPixel(i, j, GREEN)) + (rgb.getPixel(i, j, BLUE)); 
+            r = rgb.getPixel(i, j, RED) / double (rgb_sum);
+            g = rgb.getPixel(i, j, GREEN) / double (rgb_sum);
+            b = rgb.getPixel(i, j, BLUE) / double (rgb_sum);
+            
+            // calculate the HSI value
+            theta = acos ((0.5 * ((r - g) + (r - b))) / double (sqrt (pow ((r - g), 2) + (r - b) * (g - b))));
+            if (b <= g) {
+                h = theta;
+            } else if (b > g) {
+                h = (2 * M_PI) - theta;
+            }
+            h = round (h * 180 / M_PI);
+
+            s = round ((1 - (3 * min(r, min(g, b)))) * 100);
+            
+            v = round ((rgb_sum / 3.0));
+
+            // cout << "HSI: (" << h << ", " << h << ", " << v << ")" << endl;
+            
+            // channelH[h] += 1;
+            // channelS[s] += 1;
+            // channelI[v] += 1;
+
+            hsv.setPixel(i, j, RED, h);
+            hsv.setPixel(i, j, GREEN, s);
+            hsv.setPixel(i, j, BLUE, v);        
+        }
+    }
+    // hsv.save("kos.ppm"); 
+
+    roi rect;
+    rect.x = 0;
+    rect.y = 0;
+    rect.sx = hsv.getNumberOfColumns();
+    rect.sy = hsv.getNumberOfRows();
+    // cout << rect.sx << " " << rect.sy << endl;
+    createColorHistogram (hsv, rect);
 }
 
 void utility::colorStretching(image &src, image &tgt, char *input) {
@@ -359,8 +438,12 @@ void utility::colorStretching(image &src, image &tgt, char *input) {
 
     int pixelR, pixelG, pixelB, new_pixel;
 
-    copyImage (src, tgt);
+    // image hsi;
+    // rgb2Hsi (src, hsi);
+    // copyImage (hsi, src);
 
+    copyImage (src, tgt);
+    
     // remove three first parameter (src, tgt, function name) from input string
     strtok(input, " ");
     strtok(NULL, " ");
@@ -423,12 +506,7 @@ void utility::colorStretching(image &src, image &tgt, char *input) {
             }
         }
 
-        // vector<int> nk(256, 0); 
-        // createColorHistogram(src, rect, nk);
-        // vector<int> mk(256, 0); 
-        // createHistogram(tgt, rect, mk);
-
-        // plotHistogram(nk);
-        // plotHistogram(mk);
+        // createColorHistogram(src, rect);
+        createColorHistogram(tgt, rect);
     }
 }
