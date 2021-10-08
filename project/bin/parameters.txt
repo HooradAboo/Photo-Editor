@@ -1,1 +1,6 @@
-baboon.ppm out.ppm cstretching 1 0 0 510 510 30 250
+baboon.pgm baboon_tstretch.pgm tstretching 1 0 0 510 510 100 10 30 150 210
+baboon.ppm baboon_chstretch.ppm chstretching 1 0 0 510 510 b 70 200
+baboon.ppm baboon_cstretch.ppm cstretching 1 0 0 510 510 70 200
+baboon.ppm baboon_hstretch.ppm hstretching 1 0 0 510 510 70 200
+baboon.ppm baboon_hsstretch.ppm hsstretching 1 0 0 510 510 70 200 10 80
+baboon.ppm baboon_hsistretch.ppm hsistretching 1 0 0 510 510 70 200 10 80 50 200

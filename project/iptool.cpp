@@ -156,8 +156,23 @@ int main(int argc, char **argv) {
         } else if (strcmp(pch, "stretching") == 0) {
             utility::stretching(src, tgt, input);
 
+        } else if (strcmp(pch, "tstretching") == 0) {
+            utility::thresholdStretching(src, tgt, input);
+
+        } else if (strcmp(pch, "chstretching") == 0) {
+            utility::channelStretching(src, tgt, input);
+
         } else if (strcmp(pch, "cstretching") == 0) {
             utility::colorStretching(src, tgt, input);
+
+        } else if (strcmp(pch, "hstretching") == 0) {
+            utility::hueStretching(src, tgt, input);
+
+        } else if (strcmp(pch, "hsstretching") == 0) {
+            utility::hueSaturationStretching(src, tgt, input);
+
+        } else if (strcmp(pch, "hsistretching") == 0) {
+            utility::hueSaturationIntensityStretching(src, tgt, input);
 
         } else {
             printf("No function: %s\n", pch);
