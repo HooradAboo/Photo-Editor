@@ -61,96 +61,50 @@ int main(int argc, char **argv) {
 
         } else if (strcmp(pch, "brightness") == 0) {
             /* Image brightness */
-            vector<vtv_roi> vroi;
-            vtv_roi rect;
-            int roi_num = atoi(strtok(NULL, " "));
-            for (int i = 0; i < roi_num; i++) {
-                rect.threshold = atoi(strtok(NULL, " "));
-                rect.value1 = atoi(strtok(NULL, " "));
-                rect.value2 = atoi(strtok(NULL, " "));
-                rect.x = atoi(strtok(NULL, " "));
-                rect.y = atoi(strtok(NULL, " "));
-                rect.sx = atoi(strtok(NULL, " "));
-                rect.sy = atoi(strtok(NULL, " "));
-
-                vroi.push_back(rect);
-            }
-            utility::adjustBrightness(src, tgt, vroi);
+            utility::adjustBrightness(src, tgt, input);
 
         } else if (strcmp(pch, "smoothing") == 0) {
             /* Smoothing Filter */
-            vector<w_roi> vroi;
-            w_roi rect;
-        
-            int roi_num = atoi(strtok(NULL, " "));
-            for (int i = 0; i < roi_num; i++) {
-                rect.window = atoi(strtok(NULL, " "));
-                rect.x = atoi(strtok(NULL, " "));
-                rect.y = atoi(strtok(NULL, " "));
-                rect.sx = atoi(strtok(NULL, " "));
-                rect.sy = atoi(strtok(NULL, " "));
-
-                vroi.push_back(rect);
-            }
-            utility::smoothing(src, tgt, vroi);
+            utility::smoothing(src, tgt, input);
 
         } else if (strcmp(pch, "cbrightness") == 0) {
             /* Color image brightness */
-            vector<cm_roi> vroi;
-            cm_roi rect;
-            int roi_num = atoi(strtok(NULL, " "));
-            for (int i = 0; i < roi_num; i++) {
-                rect.more_c = atoi(strtok(NULL, " "));
-                rect.x = atoi(strtok(NULL, " "));
-                rect.y = atoi(strtok(NULL, " "));
-                rect.sx = atoi(strtok(NULL, " "));
-                rect.sy = atoi(strtok(NULL, " "));
-
-                vroi.push_back(rect);
-            }
-            utility::colorAdjustBrightness(src, tgt, vroi);
+            utility::colorAdjustBrightness(src, tgt, input);
 
         } else if (strcmp(pch, "cbinarize") == 0) {
             /* Color image brightness */
-            vector<cb_roi> vroi;
-            cb_roi rect;
-            int roi_num = atoi(strtok(NULL, " "));
-            for (int i = 0; i < roi_num; i++) {
-                rect.tc = atoi(strtok(NULL, " "));
-                rect.cr = atoi(strtok(NULL, " "));
-                rect.cg = atoi(strtok(NULL, " "));
-                rect.cb = atoi(strtok(NULL, " "));
-                rect.x = atoi(strtok(NULL, " "));
-                rect.y = atoi(strtok(NULL, " "));
-                rect.sx = atoi(strtok(NULL, " "));
-                rect.sy = atoi(strtok(NULL, " "));
-
-                vroi.push_back(rect);
-            }
-            utility::colorBinarize(src, tgt, vroi);
+            utility::colorBinarize(src, tgt, input);
 
         } else if (strcmp(pch, "stretching") == 0) {
+            /* Image histogram stretching */
             utility::stretching(src, tgt, input);
 
         } else if (strcmp(pch, "tstretching") == 0) {
+            /* Image histogram stretching with threshold*/
             utility::thresholdStretching(src, tgt, input);
 
         } else if (strcmp(pch, "chstretching") == 0) {
+            /* Color image histogram stretching (single channel) */
             utility::channelStretching(src, tgt, input);
 
         } else if (strcmp(pch, "cstretching") == 0) {
+            /* RGB image histogram stretching */
             utility::colorStretching(src, tgt, input);
 
         } else if (strcmp(pch, "hstretching") == 0) {
+            /* Hue stretching */
             utility::hueStretching(src, tgt, input);
 
         } else if (strcmp(pch, "hsstretching") == 0) {
+            /* Hue and saturation stretching */
             utility::hueSaturationStretching(src, tgt, input);
 
         } else if (strcmp(pch, "hsistretching") == 0) {
+            /* HSI stretching */
             utility::hueSaturationIntensityStretching(src, tgt, input);
 
         } else if (strcmp(pch, "edge") == 0) {
+             /* Edge detection */
             utility::edgeDetection(src, tgt, input);
 
         } else {

@@ -106,7 +106,7 @@ void utility::addGrey(image &src, image &tgt, char *input) {
         rect.sx = rect.x + atoi(strtok(NULL, " "));
         rect.sy = rect.y + atoi(strtok(NULL, " "));
 
-        // parse input range
+        // parse input intensity
         intensity = atoi(strtok(NULL, " "));
 
         // print input date
@@ -125,7 +125,7 @@ void utility::addGrey(image &src, image &tgt, char *input) {
 
 
 /*-----------------------------------------------------------------------**/
-void utility::binarize(image &src, image &tgt, char* input) {
+void utility::binarize(image &src, image &tgt, char *input) {
     // create target image (it is empty)
     copyImage (src, tgt);
 
@@ -145,7 +145,7 @@ void utility::binarize(image &src, image &tgt, char* input) {
         rect.sx = rect.x + atoi(strtok(NULL, " "));
         rect.sy = rect.y + atoi(strtok(NULL, " "));
 
-        // parse input range
+        // parse input threshold
         threshold = atoi(strtok(NULL, " "));
 
         // print input date
@@ -194,20 +194,48 @@ void utility::scale(image &src, image &tgt, float ratio) {
 
 
 /*-----------------------------------------------------------------------**/
-void utility::adjustBrightness(image &src, image &tgt, vector<vtv_roi> rect) {
-    if (checkRoI (rect)) {
-        // Make a copy of origin image to target image
-        copyImage (src, tgt);
+void utility::adjustBrightness(image &src, image &tgt, char *input) {
+    // create target image (it is empty)
+    copyImage (src, tgt);
 
-        // Make changes to region of intrest
-        for (int r = 0; r < rect.size(); r++) {
-            for (int i = rect[r].y; i < rect[r].sy; i++) {
-                for (int j = rect[r].x; j < rect[r].sx; j++) {
-                    if (src.getPixel(i, j) > rect[r].threshold) {
-                        tgt.setPixel(i, j, checkValue(src.getPixel(i, j) + rect[r].value1));
-                    } else if (src.getPixel(i, j) < rect[r].threshold) {
-                        tgt.setPixel(i, j, checkValue(src.getPixel(i, j) - rect[r].value2));
-                    }
+    // skip 3 first input (input image name, output image name, fuction name)
+    strtok(input, " ");
+    strtok(NULL, " ");
+    strtok(NULL, " "); 
+
+    roi rect;                               // Region of Intrest
+    int threshold;                          // threshold value
+    int value1, value2;                     // add value1 to I(x,y) > threshold and sub value2 to I(x,y) < threshold
+    int roi_num = atoi(strtok(NULL, " "));  // number of RoI
+
+    for (int r = 0; r < min(roi_num, 3) ; r++){
+        // parse input RoI
+        rect.x = atoi(strtok(NULL, " "));
+        rect.y = atoi(strtok(NULL, " "));
+        rect.sx = rect.x + atoi(strtok(NULL, " "));
+        rect.sy = rect.y + atoi(strtok(NULL, " "));
+
+        // parse input threshold
+        threshold = atoi(strtok(NULL, " "));
+
+        // parse input values
+        value1 = atoi(strtok(NULL, " "));
+        value2 = atoi(strtok(NULL, " "));
+
+        // print input date
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(X',Y'): (" << rect.sx << "," << rect.sy << ")" << endl;
+        cout << "Threshold: " << threshold << endl;
+        cout << "Value 1: " << value1 << endl;
+        cout << "Value 2: " << value2 << endl;
+
+        // set new pixel value in output image
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+                if (src.getPixel(i, j) > threshold) {
+                    tgt.setPixel(i, j, checkValue(src.getPixel(i, j) + value1));
+                } else if (src.getPixel(i, j) < threshold) {
+                    tgt.setPixel(i, j, checkValue(src.getPixel(i, j) - value2));
                 }
             }
         }
@@ -216,24 +244,48 @@ void utility::adjustBrightness(image &src, image &tgt, vector<vtv_roi> rect) {
 
 
 /*-----------------------------------------------------------------------**/
-void utility::smoothing(image &src, image &tgt, vector<w_roi> rect) {
-    if (checkRoI (rect)) {
-        // Make a copy of origin image to target image
-        copyImage (src, tgt);
+void utility::smoothing(image &src, image &tgt, char *input) {
+     // create target image (it is empty)
+    copyImage (src, tgt);
+    
+    // skip 3 first input (input image name, output image name, fuction name)
+    strtok(input, " ");
+    strtok(NULL, " ");
+    strtok(NULL, " "); 
 
-        // Make changes to region of intrest
-        for (int r = 0; r < rect.size(); r++) {
-            for (int i = rect[r].y; i < rect[r].sy; i++) {
-                for (int j = rect[r].x; j < rect[r].sx; j++) {
-                    int sum = 0;
-                    for (int wr = 0; wr < rect[r].window; wr++) {
-                        for (int wc = 0; wc < rect[r].window; wc++) {
-                            sum += tgt.getPixel(i + wr, j + wc);
-                        }
+    roi rect;                               // Region of Intrest
+    int window;                             // window size
+    int roi_num = atoi(strtok(NULL, " "));  // number of RoI
+
+    int avg;                                // average of window's elements
+    int sum;                                // sum of window's elements
+
+    for (int r = 0; r < min(roi_num, 3); r++){
+        // parse input RoI
+        rect.x = atoi(strtok(NULL, " "));
+        rect.y = atoi(strtok(NULL, " "));
+        rect.sx = rect.x + atoi(strtok(NULL, " "));
+        rect.sy = rect.y + atoi(strtok(NULL, " "));
+
+        // parse input window size
+        window = atoi(strtok(NULL, " "));
+
+        // print input date
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(X',Y'): (" << rect.sx << "," << rect.sy << ")" << endl;
+        cout << "Window: " << window << endl;
+
+        // set new pixel value in output image
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+                sum = 0;
+                for (int wr = 0; wr < window; wr++) {
+                    for (int wc = 0; wc < window; wc++) {
+                        sum += tgt.getPixel(i + wr, j + wc);
                     }
-                    int avg = sum / pow(rect[r].window, 2);
-                    tgt.setPixel(i + rect[r].window/2, j + rect[r].window/2, checkValue(avg));
                 }
+                avg = sum / pow(window, 2);
+                tgt.setPixel(i + window/2, j + window/2, checkValue(avg));
             }
         }
     }
@@ -241,19 +293,40 @@ void utility::smoothing(image &src, image &tgt, vector<w_roi> rect) {
 
 
 /*-----------------------------------------------------------------------**/
-void utility::colorAdjustBrightness(image &src, image &tgt, vector<cm_roi> rect) {
-    if (checkRoI (rect)) {
-        // Make a copy of origin image to target image
-        copyImage (src, tgt);
+void utility::colorAdjustBrightness(image &src, image &tgt, char *input) {
+    // create target image (it is empty)
+    copyImage (src, tgt);
 
-        // Make changes to region of intrest
-        for (int r = 0; r < rect.size(); r++) {
-            for (int i = rect[r].y; i < rect[r].sy; i++) {
-                for (int j = rect[r].x; j < rect[r].sx; j++) {
-                    tgt.setPixel(i, j, RED, checkValue(src.getPixel(i, j, RED) * rect[r].more_c));
-                    tgt.setPixel(i, j, GREEN, checkValue(src.getPixel(i, j, GREEN) + rect[r].more_c));
-                    tgt.setPixel(i, j, BLUE, checkValue(src.getPixel(i, j, BLUE) + rect[r].more_c));
-                }
+    // skip 3 first input (input image name, output image name, fuction name)
+    strtok(input, " ");
+    strtok(NULL, " ");
+    strtok(NULL, " "); 
+
+    roi rect;                               // Region of Intrest
+    int more_c;                             // More_C threshold
+    int roi_num = atoi(strtok(NULL, " "));  // number of RoI
+
+    for (int r = 0; r < min(roi_num, 3) ; r++){
+        // parse input RoI
+        rect.x = atoi(strtok(NULL, " "));
+        rect.y = atoi(strtok(NULL, " "));
+        rect.sx = rect.x + atoi(strtok(NULL, " "));
+        rect.sy = rect.y + atoi(strtok(NULL, " "));
+
+        // parse input more_c
+        more_c = atoi(strtok(NULL, " "));
+
+        // print input date
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(X',Y'): (" << rect.sx << "," << rect.sy << ")" << endl;
+        cout << "More-C: " << more_c << endl;
+
+        // set new pixel value in output image
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+                tgt.setPixel(i, j, RED, checkValue(src.getPixel(i, j, RED) * more_c));
+                tgt.setPixel(i, j, GREEN, checkValue(src.getPixel(i, j, GREEN) + more_c));
+                tgt.setPixel(i, j, BLUE, checkValue(src.getPixel(i, j, BLUE) + more_c));
             }
         }
     }
@@ -261,30 +334,57 @@ void utility::colorAdjustBrightness(image &src, image &tgt, vector<cm_roi> rect)
 
 
 /*-----------------------------------------------------------------------**/
-void utility::colorBinarize(image &src, image &tgt, vector<cb_roi> rect) {
-    if (checkRoI (rect)) {
-        // Make a copy of origin image to target image
-        copyImage (src, tgt);
+void utility::colorBinarize(image &src, image &tgt, char *input) {
+    // create target image (it is empty)
+    copyImage (src, tgt);
 
-        int tc_original;
-        // Make changes to region of intrest
-        for (int r = 0; r < rect.size(); r++) {
-            for (int i = rect[r].y; i < rect[r].sy; i++) {
-                for (int j = rect[r].x; j < rect[r].sx; j++) {
-                    tc_original = sqrt (pow(rect[r].cr-src.getPixel(i, j, RED),2) + pow(rect[r].cg-src.getPixel(i, j, GREEN),2) + pow(rect[r].cb-src.getPixel(i, j, BLUE),2));
-                    if (tc_original < rect[r].tc){
-                        tgt.setPixel(i, j, RED, MAXRGB);
-                        tgt.setPixel(i, j, GREEN, MINRGB);
-                        tgt.setPixel(i, j, BLUE, MINRGB);
-                    } else if (rect[r].tc <= tc_original && tc_original <= 2*rect[r].tc) {
-                        tgt.setPixel(i, j, RED, MINRGB);
-                        tgt.setPixel(i, j, GREEN, MAXRGB);
-                        tgt.setPixel(i, j, BLUE, MINRGB);
-                    } else {
-                        tgt.setPixel(i, j, RED, MAXRGB);
-                        tgt.setPixel(i, j, GREEN, MAXRGB);
-                        tgt.setPixel(i, j, BLUE, MAXRGB);
-                    }
+    // skip 3 first input (input image name, output image name, fuction name)
+    strtok(input, " ");
+    strtok(NULL, " ");
+    strtok(NULL, " "); 
+
+    roi rect;                               // Region of Intrest
+    int tc, tc_original;                          // threshold value
+    int cr, cg, cb;                         // 
+    int roi_num = atoi(strtok(NULL, " "));  // number of RoI
+
+    for (int r = 0; r < min(roi_num, 3) ; r++){
+        // parse input RoI
+        rect.x = atoi(strtok(NULL, " "));
+        rect.y = atoi(strtok(NULL, " "));
+        rect.sx = rect.x + atoi(strtok(NULL, " "));
+        rect.sy = rect.y + atoi(strtok(NULL, " "));
+
+        // parse input threshold
+        tc = atoi(strtok(NULL, " "));
+
+        // parse input values
+        cr = atoi(strtok(NULL, " "));
+        cg = atoi(strtok(NULL, " "));
+        cb = atoi(strtok(NULL, " "));
+
+        // print input date
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(X',Y'): (" << rect.sx << "," << rect.sy << ")" << endl;
+        cout << "Threshold: " << tc << endl;
+        cout << "C(R,G,B): (" << cr << "," << cg << "," << cb << ")" << endl;
+
+        // set new pixel value in output image
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+                tc_original = sqrt (pow(cr-src.getPixel(i, j, RED),2) + pow(cg-src.getPixel(i, j, GREEN),2) + pow(cb-src.getPixel(i, j, BLUE),2));
+                if (tc_original < tc){
+                    tgt.setPixel(i, j, RED, MAXRGB);
+                    tgt.setPixel(i, j, GREEN, MINRGB);
+                    tgt.setPixel(i, j, BLUE, MINRGB);
+                } else if (tc <= tc_original && tc_original <= 2*tc) {
+                    tgt.setPixel(i, j, RED, MINRGB);
+                    tgt.setPixel(i, j, GREEN, MAXRGB);
+                    tgt.setPixel(i, j, BLUE, MINRGB);
+                } else {
+                    tgt.setPixel(i, j, RED, MAXRGB);
+                    tgt.setPixel(i, j, GREEN, MAXRGB);
+                    tgt.setPixel(i, j, BLUE, MAXRGB);
                 }
             }
         }
@@ -1063,7 +1163,6 @@ void utility::edgeDetection(image &src, image &tgt, char *input) {
 }
 
 
-
 /*-----------------------------------------------------------------------**/
 void utility::thresholdEdgeDetection(image &src, image &tgt, char *input) {
     // create target image (it is empty)
@@ -1080,7 +1179,7 @@ void utility::thresholdEdgeDetection(image &src, image &tgt, char *input) {
 
     vector<vector<int>> sobel;              // sobel matrix
 
-    int magnitude, theta;                           // gradiant magnitude and direction
+    int magnitude, theta;                   // gradiant magnitude and direction
     int dx, dy;                             // derivative in x and y direction
 
     for (int r = 0; r < min(roi_num, 3); r++){

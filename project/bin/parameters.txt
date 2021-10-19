@@ -1,1 +1,1 @@
-baboon.pgm out_add.pgm add 1 50 50 300 300 128
+baboon.ppm out.ppm cbinarize 1 50 50 300 300 128 200 100 120

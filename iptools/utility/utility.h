@@ -17,28 +17,6 @@ struct interval {
     int b;
 };
 
-// Rectangular region of intrest - addjustBrightness
-struct vtv_roi {
-    int x, y;
-    int sx, sy;
-    int value1, value2;
-    int threshold;
-};
-
-// Rectangular region of intrest - smoothing
-struct w_roi {
-    int x, y;
-    int sx, sy;
-    int window;
-};
-
-// Rectangular region of intrest - colorAddjustBrightness
-struct cm_roi {
-    int x, y;
-    int sx, sy;
-    int more_c;
-};
-
 // Rectangular region of intrest - colorBinarization
 struct cb_roi {
     int x, y;
@@ -56,10 +34,10 @@ public:
     static void addGrey(image &src, image &tgt, char *input);
     static void binarize(image &src, image &tgt, char *input);
     static void scale(image &src, image &tgt, float ratio);
-    static void adjustBrightness(image &src, image &tgt, vector<vtv_roi> rect);
-    static void smoothing(image &src, image &tgt, vector<w_roi> rect);
-    static void colorAdjustBrightness(image &src, image &tgt, vector<cm_roi> rect);
-    static void colorBinarize(image &src, image &tgt, vector<cb_roi> rect);
+    static void adjustBrightness(image &src, image &tgt, char *input);
+    static void smoothing(image &src, image &tgt, char *input);
+    static void colorAdjustBrightness(image &src, image &tgt, char *input);
+    static void colorBinarize(image &src, image &tgt, char *input);
     static void stretching(image &src, image &tgt, char *input);
     static void thresholdStretching(image &src, image &tgt, char *input);
     static void channelStretching(image &src, image &tgt, char *input);
