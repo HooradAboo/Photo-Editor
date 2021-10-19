@@ -48,35 +48,11 @@ int main(int argc, char **argv) {
 
         if (strcmp(pch, "add") == 0) {
             /* Add Intensity */
-            vector<v_roi> vroi;
-            v_roi rect;
-            int roi_num = atoi(strtok(NULL, " "));
-            for (int i = 0; i < roi_num; i++) {
-                rect.value = atoi(strtok(NULL, " "));
-                rect.x = atoi(strtok(NULL, " "));
-                rect.y = atoi(strtok(NULL, " "));
-                rect.sx = atoi(strtok(NULL, " "));
-                rect.sy = atoi(strtok(NULL, " "));
-
-                vroi.push_back(rect);
-            }
-            utility::addGrey(src, tgt, vroi);
+            utility::addGrey(src, tgt, input);
 
         } else if (strcmp(pch, "binarize") == 0) {
             /* Thresholding */
-            vector<t_roi> vroi;
-            t_roi rect;
-            int roi_num = atoi(strtok(NULL, " "));
-            for (int i = 0; i < roi_num; i++) {
-                rect.threshold = atoi(strtok(NULL, " "));
-                rect.x = atoi(strtok(NULL, " "));
-                rect.y = atoi(strtok(NULL, " "));
-                rect.sx = atoi(strtok(NULL, " "));
-                rect.sy = atoi(strtok(NULL, " "));
-
-                vroi.push_back(rect);
-            } 
-            utility::binarize(src, tgt, vroi);
+            utility::binarize(src, tgt, input);
 
         } else if (strcmp(pch, "scale") == 0) {
             /* Image scaling */
@@ -173,6 +149,9 @@ int main(int argc, char **argv) {
 
         } else if (strcmp(pch, "hsistretching") == 0) {
             utility::hueSaturationIntensityStretching(src, tgt, input);
+
+        } else if (strcmp(pch, "edge") == 0) {
+            utility::edgeDetection(src, tgt, input);
 
         } else {
             printf("No function: %s\n", pch);

@@ -86,17 +86,38 @@ bool checkRoI (vector<RoI> vroi) {
 
 
 /*-----------------------------------------------------------------------**/
-void utility::addGrey(image &src, image &tgt, vector<v_roi> rect) {
-    if (checkRoI (rect)) {
-        // // Make a copy of origin image to target image
-        copyImage (src, tgt);
-        
-        // Make changes to region of intrest
-        for (int r = 0; r < rect.size(); r++) {
-            for (int i = rect[r].y; i < rect[r].sy; i++) {
-                for (int j = rect[r].x; j < rect[r].sx; j++) {
-                    tgt.setPixel(i, j, checkValue(src.getPixel(i, j) + rect[r].value));
-                }
+void utility::addGrey(image &src, image &tgt, char *input) {
+    // create target image (it is empty)
+    copyImage (src, tgt);
+
+    // skip 3 first input (input image name, output image name, fuction name)
+    strtok(input, " ");
+    strtok(NULL, " ");
+    strtok(NULL, " "); 
+
+    roi rect;                               // Region of Intrest
+    int intensity;                          // added intensity value
+    int roi_num = atoi(strtok(NULL, " "));  // number of RoI
+
+    for (int r = 0; r < min(roi_num, 3) ; r++){
+        // parse input RoI
+        rect.x = atoi(strtok(NULL, " "));
+        rect.y = atoi(strtok(NULL, " "));
+        rect.sx = rect.x + atoi(strtok(NULL, " "));
+        rect.sy = rect.y + atoi(strtok(NULL, " "));
+
+        // parse input range
+        intensity = atoi(strtok(NULL, " "));
+
+        // print input date
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(X',Y'): (" << rect.sx << "," << rect.sy << ")" << endl;
+        cout << "Intensity: " << intensity << endl;
+
+        // set new pixel value in output image
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+                tgt.setPixel(i, j, checkValue(src.getPixel(i, j) + intensity));
             }
         }
     }
@@ -104,20 +125,41 @@ void utility::addGrey(image &src, image &tgt, vector<v_roi> rect) {
 
 
 /*-----------------------------------------------------------------------**/
-void utility::binarize(image &src, image &tgt, vector<t_roi> rect) {
-    if (checkRoI (rect)) {
-        // Make a copy of origin image to target image
-        copyImage (src, tgt);
+void utility::binarize(image &src, image &tgt, char* input) {
+    // create target image (it is empty)
+    copyImage (src, tgt);
 
-        // Make changes to region of intrest
-        for (int r = 0; r < rect.size(); r++) {
-            for (int i = rect[r].y; i < rect[r].sy; i++) {
-                for (int j = rect[r].x; j < rect[r].sx; j++) {
-                    if (src.getPixel(i, j) < rect[r].threshold){
-                        tgt.setPixel(i, j, MINRGB);
-                    } else {
-                        tgt.setPixel(i, j, MAXRGB);
-                    }
+    // skip 3 first input (input image name, output image name, fuction name)
+    strtok(input, " ");
+    strtok(NULL, " ");
+    strtok(NULL, " "); 
+
+    roi rect;                               // Region of Intrest
+    int threshold;                          // threshold
+    int roi_num = atoi(strtok(NULL, " "));  // number of RoI
+
+    for (int r = 0; r < min(roi_num, 3); r++){
+        // parse input RoI
+        rect.x = atoi(strtok(NULL, " "));
+        rect.y = atoi(strtok(NULL, " "));
+        rect.sx = rect.x + atoi(strtok(NULL, " "));
+        rect.sy = rect.y + atoi(strtok(NULL, " "));
+
+        // parse input range
+        threshold = atoi(strtok(NULL, " "));
+
+        // print input date
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(X',Y'): (" << rect.sx << "," << rect.sy << ")" << endl;
+        cout << "Threshold: " << threshold << endl;
+
+        // set new pixel value in output image
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+                if (src.getPixel(i, j) < threshold){
+                    tgt.setPixel(i, j, MINRGB);
+                } else {
+                    tgt.setPixel(i, j, MAXRGB);
                 }
             }
         }
@@ -274,9 +316,13 @@ void plotHistogram(vector<int> histogram_vector, int pixels_num) {
         }
     }
 
+    std::stringstream ss;   //create a stringstream
+    ss << cnt;              //add number to the stream
+
     // convert file name from string to char*
     char outfile[MAXLEN];
-    string name = "hist_" + to_string(cnt++) + ".pgm";
+    string name = "hist_" + ss.str() + ".pgm";
+    cnt++;
     strcpy(outfile, name.c_str());
     hist.save(outfile);
 }
@@ -311,7 +357,7 @@ void utility::stretching(image &src, image &tgt, char *input) {
 
     int pixel, new_pixel;                   // I(i, j) and I'(i, j)
 
-    for (int r = 0; r < roi_num; r++){
+    for (int r = 0; r < min(roi_num, 3); r++){
         // parse input RoI
         rect.x = atoi(strtok(NULL, " "));
         rect.y = atoi(strtok(NULL, " "));
@@ -366,7 +412,7 @@ void utility::thresholdStretching(image &src, image &tgt, char *input) {
 
     int pixel, new_pixel;                   // I(i, j) and I'(i, j)
 
-    for (int r = 0; r < roi_num; r++){
+    for (int r = 0; r < min(roi_num, 3); r++){
         // parse input roi
         rect.x = atoi(strtok(NULL, " "));
         rect.y = atoi(strtok(NULL, " "));
@@ -443,7 +489,7 @@ void utility::channelStretching(image &src, image &tgt, char *input) {
     int pixel, new_pixel;                   // I(i, j) and I'(i, j)
     char *pch;
 
-    for (int r = 0; r < roi_num; r++){
+    for (int r = 0; r < min(roi_num, 3); r++){
         // parse input roi
         rect.x = atoi(strtok(NULL, " "));
         rect.y = atoi(strtok(NULL, " "));
@@ -534,7 +580,7 @@ void utility::colorStretching(image &src, image &tgt, char *input) {
 
     int pixelR, pixelG, pixelB, new_pixel;  // redI(i, j) and greenI(i, j) and blueI(i, j) and I'(i,j)
 
-    for (int r = 0; r < roi_num; r++){
+    for (int r = 0; r < min(roi_num, 3); r++){
         // parse input roi
         rect.x = atoi(strtok(NULL, " "));
         rect.y = atoi(strtok(NULL, " "));
@@ -729,7 +775,7 @@ void utility::hueStretching(image &src, image &tgt, char *input) {
 
     int pixel, new_pixel;                   // I(i, j) and I'(i, j)
 
-    for (int r = 0; r < roi_num; r++){
+    for (int r = 0; r < min(roi_num, 3); r++){
         // parse input RoI
         rect.x = atoi(strtok(NULL, " "));
         rect.y = atoi(strtok(NULL, " "));
@@ -793,7 +839,7 @@ void utility::hueSaturationStretching(image &src, image &tgt, char *input) {
 
     int pixelH, pixelS, new_pixel;          // HI(i, j) and SI(i, j) and I'(i, j)
 
-    for (int r = 0; r < roi_num; r++){
+    for (int r = 0; r < min(roi_num, 3); r++){
         // parse input RoI
         rect.x = atoi(strtok(NULL, " "));
         rect.y = atoi(strtok(NULL, " "));
@@ -872,7 +918,7 @@ void utility::hueSaturationIntensityStretching(image &src, image &tgt, char *inp
 
     int pixelH, pixelS, pixelI, new_pixel;                          // HI(i, j) and SI(i, j) and II(i, j) and I'(i, j)
 
-    for (int r = 0; r < roi_num; r++){
+    for (int r = 0; r < min(roi_num, 3); r++){
         // parse input RoI
         rect.x = atoi(strtok(NULL, " "));
         rect.y = atoi(strtok(NULL, " "));
@@ -941,5 +987,149 @@ void utility::hueSaturationIntensityStretching(image &src, image &tgt, char *inp
         // create and save image histogram
         createHistogram(src, rect);
         createHistogram(tgt, rect);
+    }
+}
+
+
+
+/*-----------------------------------------------------------------------**/
+void utility::edgeDetection(image &src, image &tgt, char *input) {
+    // create target image (it is empty)
+    copyImage (src, tgt);
+    
+    // skip 3 first input (input image name, output image name, fuction name)
+    strtok(input, " ");
+    strtok(NULL, " ");
+    strtok(NULL, " "); 
+
+    roi rect;                               // Region of Intrest
+    int window;                             // window size
+    int roi_num = atoi(strtok(NULL, " "));  // number of RoI
+
+    vector<vector<int>> sobel;              // sobel matrix
+
+    int magnitude, theta;                           // gradiant magnitude and direction
+    int dx, dy;                             // derivative in x and y direction
+
+    for (int r = 0; r < min(roi_num, 3); r++){
+        // parse input RoI
+        rect.x = atoi(strtok(NULL, " "));
+        rect.y = atoi(strtok(NULL, " "));
+        rect.sx = rect.x + atoi(strtok(NULL, " "));
+        rect.sy = rect.y + atoi(strtok(NULL, " "));
+
+        // parse input range
+        window = atoi(strtok(NULL, " "));
+
+        // create kernel matrix based on the window size
+        if (window == 3) {
+            sobel = {
+                {-1, 0, 1},
+                {-2, 0, 2},
+                {-1, 0, 1}
+            };
+        } else if (window == 5) {
+            sobel = {
+                {2, 1, 0, -1, -2},
+                {2, 1, 0, -1, -2},
+                {4, 2, 0, -2, -4},
+                {2, 1, 0, -1, -2},
+                {2, 1, 0, -1, -2}
+            };
+        }
+
+        // print input date
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(X',Y'): (" << rect.sx << "," << rect.sy << ")" << endl;
+        cout << "window: " << window << endl;
+
+        // set new pixel value in output image
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+               dx = 0; 
+               dy = 0;
+                for (int wr = 0; wr < window; wr++) {
+                    for (int wc = 0; wc < window; wc++) {
+                        dx = dx + (src.getPixel(i + wr, j + wc) * sobel[wr][wc]);
+                        dy = dy + (src.getPixel(i + wc, j + wr) * sobel[wr][wc]);
+                    }
+                }
+                magnitude = sqrt(pow(dx, 2) + pow(dy, 2));
+                theta = atan(dy / dx);
+                tgt.setPixel(i + window/2, j + window/2, checkValue(magnitude));
+            }
+        }
+    }
+}
+
+
+
+/*-----------------------------------------------------------------------**/
+void utility::thresholdEdgeDetection(image &src, image &tgt, char *input) {
+    // create target image (it is empty)
+    copyImage (src, tgt);
+    
+    // skip 3 first input (input image name, output image name, fuction name)
+    strtok(input, " ");
+    strtok(NULL, " ");
+    strtok(NULL, " "); 
+
+    roi rect;                               // Region of Intrest
+    int window;                             // window size
+    int roi_num = atoi(strtok(NULL, " "));  // number of RoI
+
+    vector<vector<int>> sobel;              // sobel matrix
+
+    int magnitude, theta;                           // gradiant magnitude and direction
+    int dx, dy;                             // derivative in x and y direction
+
+    for (int r = 0; r < min(roi_num, 3); r++){
+        // parse input RoI
+        rect.x = atoi(strtok(NULL, " "));
+        rect.y = atoi(strtok(NULL, " "));
+        rect.sx = rect.x + atoi(strtok(NULL, " "));
+        rect.sy = rect.y + atoi(strtok(NULL, " "));
+
+        // parse input range
+        window = atoi(strtok(NULL, " "));
+
+        // create kernel matrix based on the window size
+        if (window == 3) {
+            sobel = {
+                {-1, 0, 1},
+                {-2, 0, 2},
+                {-1, 0, 1}
+            };
+        } else if (window == 5) {
+            sobel = {
+                {2, 1, 0, -1, -2},
+                {2, 1, 0, -1, -2},
+                {4, 2, 0, -2, -4},
+                {2, 1, 0, -1, -2},
+                {2, 1, 0, -1, -2}
+            };
+        }
+
+        // print input date
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(X',Y'): (" << rect.sx << "," << rect.sy << ")" << endl;
+        cout << "window: " << window << endl;
+
+        // set new pixel value in output image
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+               dx = 0; 
+               dy = 0;
+                for (int wr = 0; wr < window; wr++) {
+                    for (int wc = 0; wc < window; wc++) {
+                        dx = dx + (src.getPixel(i + wr, j + wc) * sobel[wr][wc]);
+                        dy = dy + (src.getPixel(i + wc, j + wr) * sobel[wr][wc]);
+                    }
+                }
+                magnitude = sqrt(pow(dx, 2) + pow(dy, 2));
+                theta = atan(dy / dx);
+                tgt.setPixel(i + window/2, j + window/2, checkValue(magnitude));
+            }
+        }
     }
 }
