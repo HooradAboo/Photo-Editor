@@ -1,1 +1,1 @@
-baboon.ppm out.ppm cbinarize 1 50 50 300 300 128 200 100 120
+baboon.ppm out.ppm cedge 1 50 50 300 300 128 200 100 120

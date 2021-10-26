@@ -13,7 +13,7 @@ EXEC = iptool
 all: $(EXEC)
 
 iptools:
-#	(cd ../iptools; make)
+	(cd ../iptools; make)
 
 clean:
 	$(RM) $(BIN_DIR)$(EXEC); make all

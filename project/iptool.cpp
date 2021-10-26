@@ -107,6 +107,14 @@ int main(int argc, char **argv) {
              /* Edge detection */
             utility::edgeDetection(src, tgt, input);
 
+        } else if (strcmp(pch, "tedge") == 0) {
+             /* Edge detection */
+            utility::thresholdEdgeDetection(src, tgt, input);
+
+        } else if (strcmp(pch, "cedge") == 0) {
+             /* Edge detection */
+            utility::colorEdgeDetection(src, tgt, input);
+
         } else {
             printf("No function: %s\n", pch);
             continue;
