@@ -1047,7 +1047,6 @@ void utility::hueSaturationIntensityStretching(image &src, image &tgt, char *inp
 }
 
 
-
 /*-----------------------------------------------------------------------**/
 void utility::edgeDetection(image &src, image &tgt, char *input) {
     // create target image (it is empty)
@@ -1063,8 +1062,9 @@ void utility::edgeDetection(image &src, image &tgt, char *input) {
     int roi_num = atoi(strtok(NULL, " "));  // number of RoI
 
     vector<vector<int>> sobel;              // sobel matrix
+    int distance;
 
-    int magnitude, theta;                           // gradiant magnitude and direction
+    int magnitude;                          // gradiant magnitude
     int dx, dy;                             // derivative in x and y direction
 
     for (int r = 0; r < min(roi_num, 3); r++){
@@ -1074,7 +1074,7 @@ void utility::edgeDetection(image &src, image &tgt, char *input) {
         rect.sx = rect.x + atoi(strtok(NULL, " "));
         rect.sy = rect.y + atoi(strtok(NULL, " "));
 
-        // parse input range
+        // parse input window size
         window = atoi(strtok(NULL, " "));
 
         // create kernel matrix based on the window size
@@ -1084,20 +1084,30 @@ void utility::edgeDetection(image &src, image &tgt, char *input) {
                 {-2, 0, 2},
                 {-1, 0, 1}
             };
+
+            distance = 4;
+            
         } else if (window == 5) {
             sobel = {
-                {2, 1, 0, -1, -2},
-                {2, 1, 0, -1, -2},
-                {4, 2, 0, -2, -4},
-                {2, 1, 0, -1, -2},
-                {2, 1, 0, -1, -2}
+                // {2, 1, 0, -1, -2},
+                // {2, 1, 0, -1, -2},
+                // {4, 2, 0, -2, -4},
+                // {2, 1, 0, -1, -2},
+                // {2, 1, 0, -1, -2}
+                { -5,  -4,  0,   4,  5},
+                { -8, -10,  0,  10,  8},
+                {-10, -20,  0,  20, 10},
+                { -8, -10,  0,  10,  8},
+                { -5,  -4,  0,   4,  5}
             };
+
+            distance = 84;
         }
 
         // print input date
         cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
         cout << "(X',Y'): (" << rect.sx << "," << rect.sy << ")" << endl;
-        cout << "window: " << window << endl;
+        cout << "Window: " << window << endl;
 
         // set new pixel value in output image
         for (int i = rect.y; i < rect.sy; i++) {
@@ -1109,15 +1119,17 @@ void utility::edgeDetection(image &src, image &tgt, char *input) {
                         dx = dx + (src.getPixel(i + wr, j + wc) * sobel[wr][wc]);
                         dy = dy + (src.getPixel(i + wc, j + wr) * sobel[wr][wc]);
                     }
+                    // dx /= distance;
+                    // dy /= distance;
                 }
                 magnitude = sqrt(pow(dx, 2) + pow(dy, 2));
-                theta = atan(dy / dx);
-                tgt.setPixel(i + window/2, j + window/2, checkValue(magnitude));
+                // // normlise the strength of gradiant to the range of 0 to 255
+                // magnitude = magnitude / 1428 * 255;
+                tgt.setPixel(i + window/2, j + window/2, magnitude);
             }
         }
     }
 }
-
 
 
 /*-----------------------------------------------------------------------**/
@@ -1132,11 +1144,13 @@ void utility::thresholdEdgeDetection(image &src, image &tgt, char *input) {
 
     roi rect;                               // Region of Intrest
     int window;                             // window size
+    int threshold;                           // threshold
     int roi_num = atoi(strtok(NULL, " "));  // number of RoI
 
     vector<vector<int>> sobel;              // sobel matrix
+    int distance;
 
-    int magnitude, theta;                   // gradiant magnitude and direction
+    int magnitude;                          // gradiant magnitude
     int dx, dy;                             // derivative in x and y direction
 
     for (int r = 0; r < min(roi_num, 3); r++){
@@ -1146,8 +1160,9 @@ void utility::thresholdEdgeDetection(image &src, image &tgt, char *input) {
         rect.sx = rect.x + atoi(strtok(NULL, " "));
         rect.sy = rect.y + atoi(strtok(NULL, " "));
 
-        // parse input range
+        // parse window size and threshold
         window = atoi(strtok(NULL, " "));
+        threshold = atoi(strtok(NULL, " "));
 
         // create kernel matrix based on the window size
         if (window == 3) {
@@ -1156,20 +1171,26 @@ void utility::thresholdEdgeDetection(image &src, image &tgt, char *input) {
                 {-2, 0, 2},
                 {-1, 0, 1}
             };
+
+            distance = 4;
+
         } else if (window == 5) {
             sobel = {
-                {2, 1, 0, -1, -2},
-                {2, 1, 0, -1, -2},
-                {4, 2, 0, -2, -4},
-                {2, 1, 0, -1, -2},
-                {2, 1, 0, -1, -2}
+                { -5,  -4,  0,   4,  5},
+                { -8, -10,  0,  10,  8},
+                {-10, -20,  0,  20, 10},
+                { -8, -10,  0,  10,  8},
+                { -5,  -4,  0,   4,  5}
             };
+
+            distance = 84;
         }
 
         // print input date
         cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
         cout << "(X',Y'): (" << rect.sx << "," << rect.sy << ")" << endl;
-        cout << "window: " << window << endl;
+        cout << "Window: " << window << endl;
+        cout << "Threshold: " << threshold << endl;
 
         // set new pixel value in output image
         for (int i = rect.y; i < rect.sy; i++) {
@@ -1181,28 +1202,136 @@ void utility::thresholdEdgeDetection(image &src, image &tgt, char *input) {
                         dx = dx + (src.getPixel(i + wr, j + wc) * sobel[wr][wc]);
                         dy = dy + (src.getPixel(i + wc, j + wr) * sobel[wr][wc]);
                     }
+                    // dx = dx / distance * 255;
+                    // dy = dy / distance * 255;
                 }
                 magnitude = sqrt(pow(dx, 2) + pow(dy, 2));
-                theta = atan(dy / dx);
-                tgt.setPixel(i + window/2, j + window/2, checkValue(magnitude));
+                // // normlise the strength of gradiant to the range of 0 to 255
+                // magnitude = magnitude / 1428 * 255;
+                if (magnitude <= threshold) {
+                    tgt.setPixel(i + window/2, j + window/2, MINRGB);
+                } else if (magnitude > threshold) {
+                    tgt.setPixel(i + window/2, j + window/2, MAXRGB);
+                }
             }
         }
     }
 }
 
 
+/*-----------------------------------------------------------------------**/
+void utility::directionEdgeDetection(image &src, image &tgt, char *input) {
+    // create target image (it is empty)
+    copyImage (src, tgt);
+    
+    // skip 3 first input (input image name, output image name, fuction name)
+    strtok(input, " ");
+    strtok(NULL, " ");
+    strtok(NULL, " "); 
+
+    roi rect;                               // Region of Intrest
+    int window;                             // window size
+    int threshold;                           // threshold
+    int roi_num = atoi(strtok(NULL, " "));  // number of RoI
+
+    vector<vector<int>> sobel;              // sobel matrix
+    int distance;
+
+    int magnitude;                          // gradiant magnitude
+    double theta;
+    int dx, dy;                             // derivative in x and y direction
+
+    for (int r = 0; r < min(roi_num, 3); r++){
+        // parse input RoI
+        rect.x = atoi(strtok(NULL, " "));
+        rect.y = atoi(strtok(NULL, " "));
+        rect.sx = rect.x + atoi(strtok(NULL, " "));
+        rect.sy = rect.y + atoi(strtok(NULL, " "));
+
+        // parse window size and threshold
+        window = atoi(strtok(NULL, " "));
+        threshold = atoi(strtok(NULL, " "));
+
+        // create kernel matrix based on the window size
+        if (window == 3) {
+            sobel = {
+                {-1, 0, 1},
+                {-2, 0, 2},
+                {-1, 0, 1}
+            };
+
+            distance = 4;
+
+        } else if (window == 5) {
+            sobel = {
+                { -5,  -4,  0,   4,  5},
+                { -8, -10,  0,  10,  8},
+                {-10, -20,  0,  20, 10},
+                { -8, -10,  0,  10,  8},
+                { -5,  -4,  0,   4,  5}
+            };
+
+            distance = 84;
+        }
+
+        // print input date
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(X',Y'): (" << rect.sx << "," << rect.sy << ")" << endl;
+        cout << "Window: " << window << endl;
+        cout << "Threshold: " << threshold << endl;
+
+        // set new pixel value in output image
+        for (int i = rect.y; i < rect.sy; i++) {
+            // cout << i << endl;
+            for (int j = rect.x; j < rect.sx; j++) {
+               dx = 0; 
+               dy = 0;
+                for (int wr = 0; wr < window; wr++) {
+                    for (int wc = 0; wc < window; wc++) {
+                        dx = dx + (src.getPixel(i + wr, j + wc) * sobel[wr][wc]);
+                        dy = dy + (src.getPixel(i + wc, j + wr) * sobel[wr][wc]);
+                    }
+                }
+                magnitude = sqrt(pow(dx, 2) + pow(dy, 2));
+                if (dx != 0) {
+                    theta = atan (dy/dx);
+                    if (theta < 0) {
+                        theta += (2 * M_PI);
+                    }
+                } else
+                    theta = M_PI / 2;
+                theta = round (theta * 180 / M_PI);
+                // cout << theta << endl;
+                if (theta <= 10 && 350 <= theta) {    
+                    if (magnitude <= threshold) {
+                        tgt.setPixel(i + window/2, j + window/2, MINRGB);
+                    } else if (magnitude > threshold) {
+                        tgt.setPixel(i + window/2, j + window/2, MAXRGB);
+                    }
+                } else if (35 <= theta && theta <= 55) {
+                    if (magnitude <= threshold) {
+                        tgt.setPixel(i + window/2, j + window/2, MINRGB);
+                    } else if (magnitude > threshold) {
+                        tgt.setPixel(i + window/2, j + window/2, MAXRGB);
+                    }
+                } else {
+                    tgt.setPixel(i + window/2, j + window/2, MINRGB);
+                }
+            }
+        }
+    }
+}
+
 
 /*-----------------------------------------------------------------------**/
-
-
-
-
 void utility::colorEdgeDetection(image &src, image &tgt, char *input) {
-    create target image (it is empty)
-    copyImage (src, tgt);
+    image hsi_src, hsi_tgt;                 // input and output image in HSI
 
-    image tmp;
-    rgb2hsi (src, tmp);
+    // convert input image from RGB to HSI
+    rgb2hsi (src, hsi_src);
+
+    // create target image (it is empty)
+    copyImage (hsi_src, hsi_tgt);
 
     // skip 3 first input (input image name, output image name, fuction name)
     strtok(input, " ");
@@ -1237,11 +1366,11 @@ void utility::colorEdgeDetection(image &src, image &tgt, char *input) {
             };
         } else if (window == 5) {
             sobel = {
-                {2, 1, 0, -1, -2},
-                {2, 1, 0, -1, -2},
-                {4, 2, 0, -2, -4},
-                {2, 1, 0, -1, -2},
-                {2, 1, 0, -1, -2}
+                { -5,  -4,  0,   4,  5},
+                { -8, -10,  0,  10,  8},
+                {-10, -20,  0,  20, 10},
+                { -8, -10,  0,  10,  8},
+                { -5,  -4,  0,   4,  5}
             };
         }
 
@@ -1257,16 +1386,19 @@ void utility::colorEdgeDetection(image &src, image &tgt, char *input) {
                dy = 0;
                 for (int wr = 0; wr < window; wr++) {
                     for (int wc = 0; wc < window; wc++) {
-                        dx = dx + (src.getPixel(i + wr, j + wc) * sobel[wr][wc]);
-                        dy = dy + (src.getPixel(i + wc, j + wr) * sobel[wr][wc]);
+                        dx = dx + (hsi_src.getPixel(i + wr, j + wc, BLUE) * sobel[wr][wc]);
+                        dy = dy + (hsi_src.getPixel(i + wc, j + wr, BLUE) * sobel[wr][wc]);
                     }
                 }
                 magnitude = sqrt(pow(dx, 2) + pow(dy, 2));
-                theta = atan(dy / dx);
-                tgt.setPixel(i + window/2, j + window/2, checkValue(magnitude));
+                // normlise the strength of gradiant to the range of 0 to 255
+                magnitude = magnitude / 1428 * 255;
+                if (dx != 0)
+                    theta = atan(dy / dx);
+                hsi_tgt.setPixel(i + window/2, j + window/2, BLUE, checkValue(magnitude));
             }
         }
     }
 
-    hsi2rgb (tmp, tgt);
+    hsi2rgb (hsi_tgt, tgt);
 }

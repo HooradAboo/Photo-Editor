@@ -108,19 +108,23 @@ int main(int argc, char **argv) {
             utility::edgeDetection(src, tgt, input);
 
         } else if (strcmp(pch, "tedge") == 0) {
-             /* Edge detection */
+             /* Edge detection whith threshold */
             utility::thresholdEdgeDetection(src, tgt, input);
 
+        } else if (strcmp(pch, "diredge") == 0) {
+             /* Edge detection whith threshold */
+            utility::directionEdgeDetection(src, tgt, input);
+
         } else if (strcmp(pch, "cedge") == 0) {
-             /* Edge detection */
+             /* Color edge detection */
             utility::colorEdgeDetection(src, tgt, input);
 
         } else {
             printf("No function: %s\n", pch);
             continue;
         }
-
         tgt.save(outfile);
+        
     }
     fclose(fp);
     return 0;

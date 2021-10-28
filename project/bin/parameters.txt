@@ -1,1 +1,1 @@
-baboon.ppm out.ppm cedge 1 50 50 300 300 128 200 100 120
+baboon.pgm out1.pgm tedge 1 0 0 300 300 3 128
