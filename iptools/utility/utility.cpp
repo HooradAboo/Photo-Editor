@@ -638,8 +638,8 @@ void utility::stretching(image &src, image &tgt, char *input) {
         // parse input RoI
         rect.x = atoi(strtok(NULL, " "));
         rect.y = atoi(strtok(NULL, " "));
-        rect.sx = atoi(strtok(NULL, " "));
-        rect.sy = atoi(strtok(NULL, " "));
+        rect.sx = rect.x + atoi(strtok(NULL, " "));
+        rect.sy = rect.y + atoi(strtok(NULL, " "));
 
         // parse input range
         range.a = atoi(strtok(NULL, " "));
@@ -665,8 +665,7 @@ void utility::stretching(image &src, image &tgt, char *input) {
         // print input date
         cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
         cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
-        cout << "(a,b): (" << range.a << "," << range.b << ")" << endl;
-        cout << "(c,d): (" << roi_range.a << "," << roi_range.b << ")" << endl;
+        cout << "(" << roi_range.a << "," << roi_range.b << ") --> (" << range.a << "," << range.b << ")" << endl;
 
         // set new pixel value in output image
         for (int i = rect.y; i < rect.sy; i++) {
@@ -690,7 +689,7 @@ void utility::stretching(image &src, image &tgt, char *input) {
 void utility::thresholdStretching(image &src, image &tgt, char *input) {
     // create target image (it is empty)
     copyImage (src, tgt);
-
+    
     // skip 3 first input (input image name, output image name, fuction name)
     strtok(input, " ");
     strtok(NULL, " ");
@@ -704,12 +703,12 @@ void utility::thresholdStretching(image &src, image &tgt, char *input) {
     int pixel, new_pixel;                   // I(i, j) and I'(i, j)
 
     for (int r = 0; r < min(roi_num, 3); r++){
-        // parse input roi
+        // parse input RoI
         rect.x = atoi(strtok(NULL, " "));
         rect.y = atoi(strtok(NULL, " "));
         rect.sx = rect.x + atoi(strtok(NULL, " "));
         rect.sy = rect.y + atoi(strtok(NULL, " "));
-        
+
         // parse threshold
         threhold = atoi(strtok(NULL, " "));
 
@@ -721,70 +720,73 @@ void utility::thresholdStretching(image &src, image &tgt, char *input) {
         bright_range.a = atoi(strtok(NULL, " "));
         bright_range.b = atoi(strtok(NULL, " "));
 
+        // find min and max intensity in the ROI
+        interval roi_dark_range, roi_bright_range;
+
+        roi_dark_range.a = 255;           // minimum intencity in background
+        roi_dark_range.b = 0;             // maximum intencity in background
+
+        roi_bright_range.a = 255;         // minimum intencity in forground
+        roi_bright_range.b = 0;           // maximum intencity in forground
+
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+                // remove the 0 and 255 intensity
+                if (src.getPixel(i, j) != 0 && src.getPixel(i, j) != 255) {
+                    // find min and max intensity in background
+                    if (src.getPixel(i, j) < threhold) {
+                        if (src.getPixel(i, j) < roi_dark_range.a) {
+                            roi_dark_range.a = src.getPixel(i, j);
+                        }
+                        if (roi_dark_range.b < src.getPixel(i, j)) {
+                            roi_dark_range.b = src.getPixel(i, j);
+                        }
+                    }
+                    // find min and max intensity in background
+                    else if (threhold <= src.getPixel(i, j)) {
+                        if (src.getPixel(i, j) < roi_bright_range.a) {
+                            roi_bright_range.a = src.getPixel(i, j);
+                        }
+                        if (roi_bright_range.b < src.getPixel(i, j)) {
+                            roi_bright_range.b = src.getPixel(i, j);
+                        }
+                    } 
+                } 
+            }
+        }
+
         // print input date
         cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
         cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
         cout << "Threshold: " << threhold << endl;
-        cout << "(a1,b1): (" << dark_range.a << "," << dark_range.b << ")" << endl;
-        cout << "(a2,b2): (" << bright_range.a << "," << bright_range.b << ")" << endl;
+        cout << "(" << roi_dark_range.a << "," << roi_dark_range.b << ") --> (" << dark_range.a << "," << dark_range.b << ")" << endl;
+        cout << "(" << roi_bright_range.a << "," << roi_bright_range.b << ") --> (" << bright_range.a << "," << bright_range.b << ")" << endl;
 
-        // set new pixel value in output image
+
         for (int i = rect.y; i < rect.sy; i++) {
-            
             for (int j = rect.x; j < rect.sx; j++) {
                 pixel = src.getPixel(i, j);
-                if (pixel < threhold) {                     // background
+                if (pixel > threhold) {                     // background
                     if (pixel <= dark_range.a) {
                         tgt.setPixel (i, j, 0);
                     } else if (dark_range.a < pixel && pixel < dark_range.b) {
-                        new_pixel = pixel * double ((dark_range.b - dark_range.a) / (255.0)) + dark_range.a;
-                        cout << pixel << " " << new_pixel << endl;
+                        new_pixel = round((pixel - roi_dark_range.a) * double ((dark_range.b - dark_range.a)/double(roi_dark_range.b - roi_dark_range.a)) + dark_range.a);
                         tgt.setPixel (i, j, new_pixel);
                     } else if (dark_range.b <= pixel) {
                         tgt.setPixel (i, j, 255);
                     }
-                } else if (threhold <= pixel) {             // forground
+                } else if (threhold >= pixel) {             // forground
                     if (pixel <= bright_range.a) {
                         tgt.setPixel (i, j, 0);
                     } else if (bright_range.a < pixel && pixel < bright_range.b) {
-                        new_pixel = pixel * double ((bright_range.b - bright_range.a) / (255.0)) + bright_range.a;
-                        cout << pixel << " " << new_pixel << endl;
+                        new_pixel = round((pixel - roi_bright_range.a) * double ((bright_range.b - bright_range.a)/double(roi_bright_range.b - roi_bright_range.a)) + bright_range.a);
                         tgt.setPixel (i, j, new_pixel);
                     } else if (bright_range.b <= pixel) {
                         tgt.setPixel (i, j, 255);
                     }
                 }
-
-                // pixel = src.getPixel(i, j);
-                // if (pixel <= threhold) {
-                //     // the pixel I(i, j) belongs to dark part
-                //     if (0 <= pixel && pixel <= dark_range.a) {
-                //         tgt.setPixel(i, j, 0); 
-                //     } else if (dark_range.a < pixel && pixel < dark_range.b) {
-                //         new_pixel = round(double(pixel * ((dark_range.b - dark_range.a)/double(255 - 0))) + dark_range.a);
-                //         tgt.setPixel(i, j, checkValue(new_pixel));
-                //     } else if (dark_range.b <= pixel && pixel <= 255) {
-                //         tgt.setPixel(i, j, 255);
-                //     }
-                // } else if (pixel > threhold) {
-                //     // the pixel I(i, j) belongs to bright part
-                //     if (0 <= pixel && pixel <= bright_range.a) {
-                //         tgt.setPixel(i, j, 0);
-                //     } else if (bright_range.a < pixel && pixel < bright_range.b) {
-                //         new_pixel = round(double(pixel * ((bright_range.b - bright_range.a)/double(255 - 0))) + bright_range.a);
-                //         tgt.setPixel(i, j, checkValue(new_pixel));
-                //     } else if (bright_range.b <= pixel && pixel <= 255) {
-                //         tgt.setPixel(i, j, 255); 
-                //     }
-                // }   
             }
         }
-        
-
-        // // create and save image histogram
-        // createHistogram(src, rect);
-        // createHistogram(tgt, rect);
-        
     }
 }
 

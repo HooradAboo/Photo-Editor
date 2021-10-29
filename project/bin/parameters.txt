@@ -1,2 +1,1 @@
-stretch.pgm out.pgm stretching 1 0 0 500 500 0 255
-out.pgm out_hist.pgm histogram 1 0 0 500 500
+baboon.pgm 003_dualst_test.pgm tstretching 3 20 20 100 120 100 50 75 150 215 150 200 50 85 75 25 50 90 145 250 300 75 25 150 50 75 100 175
