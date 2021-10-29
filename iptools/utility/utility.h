@@ -38,6 +38,8 @@ public:
     static void smoothing(image &src, image &tgt, char *input);
     static void colorAdjustBrightness(image &src, image &tgt, char *input);
     static void colorBinarize(image &src, image &tgt, char *input);
+    static void histogram(image &src, image &tgt, char *input);
+    static void colorHistogram(image &src, image &tgt, char *input);
     static void stretching(image &src, image &tgt, char *input);
     static void thresholdStretching(image &src, image &tgt, char *input);
     static void channelStretching(image &src, image &tgt, char *input);

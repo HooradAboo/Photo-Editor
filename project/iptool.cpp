@@ -75,6 +75,14 @@ int main(int argc, char **argv) {
             /* Color image brightness */
             utility::colorBinarize(src, tgt, input);
 
+        } else if (strcmp(pch, "histogram") == 0) {
+            /* Image histogram stretching */
+            utility::histogram(src, tgt, input);
+
+        } else if (strcmp(pch, "chistogram") == 0) {
+            /* Image histogram stretching */
+            utility::colorHistogram(src, tgt, input);
+
         } else if (strcmp(pch, "stretching") == 0) {
             /* Image histogram stretching */
             utility::stretching(src, tgt, input);

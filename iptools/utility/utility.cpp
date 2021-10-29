@@ -462,55 +462,163 @@ void utility::colorBinarize(image &src, image &tgt, char *input) {
 
 
 /*-----------------------------------------------------------------------**/
-int cnt = 0;    // counter of file name (make different file name)
-void plotHistogram(vector<int> histogram_vector) {
-    image hist;
-    // create histogram image
-    hist.resize(256, 256);
+void utility::histogram(image &src, image &tgt, char *input) {
+    // skip 3 first input (input image name, output image name, fuction name)
+    strtok(input, " ");
+    strtok(NULL, " ");
+    strtok(NULL, " "); 
 
-    // set pixel in histogram image
-    for (int i = 0; i < hist.getNumberOfRows(); i++) {
-        for (int j = 0; j < hist.getNumberOfColumns(); j++) {
-            int tmp = histogram_vector[i];
-            if (j < histogram_vector[i]) {
-                hist.setPixel(i, j, 255);
-            } else {
-                hist.setPixel(i, j, 0);
-            }  
+    roi rect;                               // Region of Intrest
+    int roi_num = atoi(strtok(NULL, " "));  // number of RoI
+
+    for (int r = 0; r < min(roi_num, 3); r++){
+        // parse input RoI
+        rect.x = atoi(strtok(NULL, " "));
+        rect.y = atoi(strtok(NULL, " "));
+        rect.sx = rect.x + atoi(strtok(NULL, " "));
+        rect.sy = rect.y + atoi(strtok(NULL, " "));
+
+        // print input date
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(X',Y'): (" << rect.sx << "," << rect.sy << ")" << endl;
+
+        int intensity[256];
+        for (int i = 0; i < 256; i++) {
+            intensity[i] = 0;
+        }
+
+        // create vector of histogram
+        int pixel;
+        for (int i = 0; i < rect.sy; i++) {
+            for (int j = 0; j < rect.sx; j++) {
+                pixel = src.getPixel(i, j);
+                intensity[pixel] = intensity[pixel] + 1;
+            }
+        }
+
+        // normalize vector of histogram
+        double total_pixel = rect.sx * rect.sy;
+        // cout << (total_pixel / 100.0) << endl;
+        for (int i = 0; i < 256; i++) {
+            // cout << intensity[i] << " ";
+            intensity[i] = double (intensity[i]) / (total_pixel / 10000.0);
+            // cout << intensity[i] << endl;
+            // cout << double (intensity[i]) / (total_pixel / 10000.0) << endl;
+        }
+
+        // draw histogram
+        tgt.resize(256, 256);
+        for (int i = 0; i < tgt.getNumberOfRows(); i++) {
+            for (int j = 0; j < src.getNumberOfColumns(); j++) {
+                if (j < intensity[i]) {
+                    tgt.setPixel(i, j, 255);
+                }
+            }
+        }
+
+        if (r == 0) {
+            tgt.save("hist_1stROI.pgm");
+        } else if (r == 1) {
+            tgt.save("hist_2edROI.pgm");
+        } else if (r == 2) {
+            tgt.save("hist_3edROI.pgm");
         }
     }
-
-    std::stringstream ss;   //create a stringstream
-    ss << cnt;              //add number to the stream
-
-    // convert file name from string to char*
-    char outfile[MAXLEN];
-    string name = "hist_" + ss.str() + ".pgm";
-    cnt++;
-    strcpy(outfile, name.c_str());
-    hist.save(outfile);
 }
 
-void createHistogram(image &src, roi rect) {
-    // create histogram vector
-    vector<int> channelR (256, 0);
-    for (int i = rect.y; i < rect.sy; i++) {
-        for (int j = rect.x; j < rect.sx; j++) {
-            channelR[src.getPixel(i, j, RED)] += 1;
+
+/*-----------------------------------------------------------------------**/
+void utility::colorHistogram(image &src, image &tgt, char *input) {
+    // skip 3 first input (input image name, output image name, fuction name)
+    strtok(input, " ");
+    strtok(NULL, " ");
+    strtok(NULL, " "); 
+
+    roi rect;                               // Region of Intrest
+    int roi_num = atoi(strtok(NULL, " "));  // number of RoI
+
+    for (int r = 0; r < min(roi_num, 3); r++){
+        // parse input RoI
+        rect.x = atoi(strtok(NULL, " "));
+        rect.y = atoi(strtok(NULL, " "));
+        rect.sx = rect.x + atoi(strtok(NULL, " "));
+        rect.sy = rect.y + atoi(strtok(NULL, " "));
+
+        // print input date
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(X',Y'): (" << rect.sx << "," << rect.sy << ")" << endl;
+
+        int intensityR[256], intensityG[256], intensityB[256];
+        for (int i = 0; i < 256; i++) {
+            intensityR[i] = 0;
+            intensityG[i] = 0;
+            intensityB[i] = 0;
+        }
+
+        // create vector of histogram
+        int pixel;
+        for (int i = 0; i < rect.sy; i++) {
+            for (int j = 0; j < rect.sx; j++) {
+                pixel = src.getPixel(i, j, RED);
+                intensityR[pixel] = intensityR[pixel] + 1;
+
+                pixel = src.getPixel(i, j, GREEN);
+                intensityG[pixel] = intensityG[pixel] + 1;
+
+                pixel = src.getPixel(i, j, BLUE);
+                intensityB[pixel] = intensityB[pixel] + 1;
+            }
+        }
+
+        // normalize vector of histogram
+        double total_pixel = rect.sx * rect.sy;
+        // cout << (total_pixel / 100.0) << endl;
+        for (int i = 0; i < 256; i++) {
+            // cout << intensityR[i] << " ";
+            intensityR[i] = double (intensityR[i]) / (total_pixel / 10000.0);
+            intensityG[i] = double (intensityG[i]) / (total_pixel / 10000.0);
+            intensityB[i] = double (intensityB[i]) / (total_pixel / 10000.0);
+            // cout << intensityR[i] << endl;
+            // cout << double (intensityR[i]) / (total_pixel / 10000.0) << endl;
+        }
+
+        // draw histogram
+        image tgtR, tgtG, tgtB;
+        tgtR.resize(256, 256);
+        tgtG.resize(256, 256);
+        tgtB.resize(256, 256);
+        for (int i = 0; i < 256; i++) {
+            for (int j = 0; j < 256; j++) {
+                if (j < intensityR[i]) {
+                    tgtR.setPixel(i, j, RED, 255);
+                }
+                if (j < intensityG[i]) {
+                    tgtG.setPixel(i, j, GREEN, 255);
+                }
+                if (j < intensityB[i]) {
+                    tgtB.setPixel(i, j, BLUE, 255);
+                }
+            }
+        }
+
+        if (r == 0) {
+            tgtR.save("histR_1stROI.ppm");
+            tgtG.save("histG_1stROI.ppm");
+            tgtB.save("histB_1stROI.ppm");
+        } else if (r == 1) {
+            tgtR.save("histR_2edROI.ppm");
+            tgtG.save("histG_2edROI.ppm");
+            tgtB.save("histB_2edROI.ppm");
+        } else if (r == 2) {
+            tgtR.save("histR_3edROI.ppm");
+            tgtG.save("histG_3edROI.ppm");
+            tgtB.save("histB_3edROI.ppm");
         }
     }
-
-    // number of pixels in RoI
-    int total_pixel = (rect.sy - rect.y) * (rect.sx - rect.x);
-
-    // normalize the number of each intensity
-    for (int i; i < channelR.size(); i++) {
-        channelR[i] = round (channelR[i] / total_pixel * 100);
-    }
-
-    plotHistogram(channelR);
 }
 
+
+/*-----------------------------------------------------------------------**/
 void utility::stretching(image &src, image &tgt, char *input) {
     // create target image (it is empty)
     copyImage (src, tgt);
@@ -1378,7 +1486,7 @@ void utility::colorEdgeDetection(image &src, image &tgt, char *input) {
     int magnitude, theta;                   // gradiant magnitude and direction
     int dx, dy;                             // derivative in x and y direction
 
-    for (int r = 0; r < min(roi_num, 3); r++){
+    for (int r = 0; r < min(roi_num, 3); r++) {
         // parse input RoI
         rect.x = atoi(strtok(NULL, " "));
         rect.y = atoi(strtok(NULL, " "));

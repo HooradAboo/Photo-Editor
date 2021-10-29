@@ -1,1 +1,1 @@
-baboon.pgm out.pgm edge 2 0 0 250 500 3 250 0 250 500 5
+baboon.ppm out.ppm chistogram 1 0 0 500 500
