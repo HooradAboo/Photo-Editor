@@ -645,10 +645,28 @@ void utility::stretching(image &src, image &tgt, char *input) {
         range.a = atoi(strtok(NULL, " "));
         range.b = atoi(strtok(NULL, " "));
 
+        // find min and max intensity in the ROI
+        interval roi_range;
+        roi_range.a = 255;          // minimum intencity
+        roi_range.b = 0;          // maximum intencity
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+                if (src.getPixel(i, j) != 0 && src.getPixel(i, j) != 255) {
+                    if (src.getPixel(i, j) < roi_range.a) {
+                        roi_range.a = src.getPixel(i, j);
+                    }
+                    if (roi_range.b < src.getPixel(i, j)) {
+                        roi_range.b = src.getPixel(i, j);
+                    }
+                } 
+            }
+        }
+
         // print input date
         cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
         cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
         cout << "(a,b): (" << range.a << "," << range.b << ")" << endl;
+        cout << "(c,d): (" << roi_range.a << "," << roi_range.b << ")" << endl;
 
         // set new pixel value in output image
         for (int i = rect.y; i < rect.sy; i++) {
@@ -657,17 +675,13 @@ void utility::stretching(image &src, image &tgt, char *input) {
                 if (0 <= pixel && pixel <= range.a) {
                     tgt.setPixel(i, j, 0);
                 } else if (range.a < pixel && pixel < range.b) {
-                    new_pixel = round(pixel * double ((range.b - range.a)/double(255 - 0)) + range.a);
+                    new_pixel = round((pixel - roi_range.a) * double ((range.b - range.a)/double(roi_range.b - roi_range.a)) + range.a);
                     tgt.setPixel(i, j, checkValue(new_pixel));
                 } else if (range.b <= pixel && pixel <= 255) {
                     tgt.setPixel(i, j, 255);
                 }
             }
         }
-
-        // create and save image histogram
-        createHistogram(src, rect);
-        createHistogram(tgt, rect);
     }
 }
 
@@ -767,9 +781,9 @@ void utility::thresholdStretching(image &src, image &tgt, char *input) {
         }
         
 
-        // create and save image histogram
-        createHistogram(src, rect);
-        createHistogram(tgt, rect);
+        // // create and save image histogram
+        // createHistogram(src, rect);
+        // createHistogram(tgt, rect);
         
     }
 }
@@ -836,42 +850,14 @@ void utility::channelStretching(image &src, image &tgt, char *input) {
             }
         }
 
-        // create and save image histogram
-        createHistogram(src, rect);
-        createHistogram(tgt, rect);
+        // // create and save image histogram
+        // createHistogram(src, rect);
+        // createHistogram(tgt, rect);
     }
 }
 
 
 /*-----------------------------------------------------------------------**/
-void createColorHistogram(image &src, roi rect) {
-    // create histogram vectors
-    vector<int> channelR (256, 0);
-    vector<int> channelG (256, 0);
-    vector<int> channelB (256, 0);
-    for (int i = rect.y; i < rect.sy; i++) {
-        for (int j = rect.x; j < rect.sx; j++) {
-            channelR[src.getPixel(i, j, RED)] += 1;
-            channelG[src.getPixel(i, j, GREEN)] += 1;
-            channelB[src.getPixel(i, j, BLUE)] += 1;
-        }
-    }
-
-    // number of pixels in RoI
-    int total_pixel = (rect.sy - rect.y) * (rect.sx - rect.x);
-
-    // normalize the number of each intensity
-    for (int i; i < channelR.size(); i++) {
-        channelR[i] = round (channelR[i] / total_pixel * 100);
-        channelG[i] = round (channelG[i] / total_pixel * 100);
-        channelB[i] = round (channelB[i] / total_pixel * 100);
-    }
-
-    plotHistogram(channelR);
-    plotHistogram(channelG);
-    plotHistogram(channelB);
-}
-
 void utility::colorStretching(image &src, image &tgt, char *input) {
     // create target image (it is empty)
     copyImage (src, tgt);
@@ -945,9 +931,9 @@ void utility::colorStretching(image &src, image &tgt, char *input) {
             }
         }
 
-        // create and save image histogram
-        createColorHistogram(src, rect);
-        createColorHistogram(tgt, rect);
+        // // create and save image histogram
+        // createColorHistogram(src, rect);
+        // createColorHistogram(tgt, rect);
     }
 }
 
@@ -1010,9 +996,9 @@ void utility::hueStretching(image &src, image &tgt, char *input) {
         hsi2rgb (tmp, rgb);
         copyImage (rgb, tgt);
 
-        // create and save image histogram
-        createHistogram(src, rect);
-        createHistogram(tgt, rect);
+        // // create and save image histogram
+        // createHistogram(src, rect);
+        // createHistogram(tgt, rect);
     }
 }
 
@@ -1089,9 +1075,9 @@ void utility::hueSaturationStretching(image &src, image &tgt, char *input) {
         hsi2rgb (tmp, rgb);
         copyImage (rgb, tgt);
 
-        // create and save image histogram
-        createHistogram(src, rect);
-        createHistogram(tgt, rect);
+        // // create and save image histogram
+        // createHistogram(src, rect);
+        // createHistogram(tgt, rect);
     }
 }
 
@@ -1182,9 +1168,9 @@ void utility::hueSaturationIntensityStretching(image &src, image &tgt, char *inp
         hsi2rgb (tmp, rgb);
         copyImage (rgb, tgt);
 
-        // create and save image histogram
-        createHistogram(src, rect);
-        createHistogram(tgt, rect);
+        // // create and save image histogram
+        // createHistogram(src, rect);
+        // createHistogram(tgt, rect);
     }
 }
 

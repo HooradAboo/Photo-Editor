@@ -1,1 +1,2 @@
-baboon.ppm out.ppm chistogram 1 0 0 500 500
+stretch.pgm out.pgm stretching 1 0 0 500 500 0 255
+out.pgm out_hist.pgm histogram 1 0 0 500 500
