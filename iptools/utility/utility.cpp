@@ -463,19 +463,14 @@ void utility::colorBinarize(image &src, image &tgt, char *input) {
 
 /*-----------------------------------------------------------------------**/
 int cnt = 0;    // counter of file name (make different file name)
-void plotHistogram(vector<int> histogram_vector, int pixels_num) {
+void plotHistogram(vector<int> histogram_vector) {
     image hist;
     // create histogram image
-    hist.resize(H_SIZE, H_SIZE);
-
-    // normalize the number of each intensity
-    for (int i = 0; i < histogram_vector.size(); i++) {
-        histogram_vector[i] = int((histogram_vector[i] / double(pixels_num)) * 2560); 
-    }
+    hist.resize(256, 256);
 
     // set pixel in histogram image
-    for (int i = 0; i < H_SIZE; i++) {
-        for (int j = 0; j < H_SIZE; j++) {
+    for (int i = 0; i < hist.getNumberOfRows(); i++) {
+        for (int j = 0; j < hist.getNumberOfColumns(); j++) {
             int tmp = histogram_vector[i];
             if (j < histogram_vector[i]) {
                 hist.setPixel(i, j, 255);
@@ -508,7 +503,12 @@ void createHistogram(image &src, roi rect) {
     // number of pixels in RoI
     int total_pixel = (rect.sy - rect.y) * (rect.sx - rect.x);
 
-    plotHistogram(channelR, total_pixel);
+    // normalize the number of each intensity
+    for (int i; i < channelR.size(); i++) {
+        channelR[i] = round (channelR[i] / total_pixel * 100);
+    }
+
+    plotHistogram(channelR);
 }
 
 void utility::stretching(image &src, image &tgt, char *input) {
@@ -537,22 +537,22 @@ void utility::stretching(image &src, image &tgt, char *input) {
         range.a = atoi(strtok(NULL, " "));
         range.b = atoi(strtok(NULL, " "));
 
-        // // print input date
-        // cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
-        // cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
-        // cout << "(a,b): (" << range.a << "," << range.b << ")" << endl;
+        // print input date
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
+        cout << "(a,b): (" << range.a << "," << range.b << ")" << endl;
 
         // set new pixel value in output image
         for (int i = rect.y; i < rect.sy; i++) {
             for (int j = rect.x; j < rect.sx; j++) {
-                pixel = src.getPixel(i, j);                     // I(i, j)
+                pixel = src.getPixel(i, j);
                 if (0 <= pixel && pixel <= range.a) {
-                    tgt.setPixel(i, j, 0);                      // I'(i, j) = 0
+                    tgt.setPixel(i, j, 0);
                 } else if (range.a < pixel && pixel < range.b) {
-                    new_pixel = round(double(pixel * ((range.b - range.a)/double(255 - 0))) + range.a);
-                    tgt.setPixel(i, j, checkValue(new_pixel));  // I'(i, j)
+                    new_pixel = round(pixel * double ((range.b - range.a)/double(255 - 0)) + range.a);
+                    tgt.setPixel(i, j, checkValue(new_pixel));
                 } else if (range.b <= pixel && pixel <= 255) {
-                    tgt.setPixel(i, j, 255);                    // I'(i, j) = 255
+                    tgt.setPixel(i, j, 255);
                 }
             }
         }
@@ -585,8 +585,8 @@ void utility::thresholdStretching(image &src, image &tgt, char *input) {
         // parse input roi
         rect.x = atoi(strtok(NULL, " "));
         rect.y = atoi(strtok(NULL, " "));
-        rect.sx = atoi(strtok(NULL, " "));
-        rect.sy = atoi(strtok(NULL, " "));
+        rect.sx = rect.x + atoi(strtok(NULL, " "));
+        rect.sy = rect.y + atoi(strtok(NULL, " "));
         
         // parse threshold
         threhold = atoi(strtok(NULL, " "));
@@ -599,43 +599,70 @@ void utility::thresholdStretching(image &src, image &tgt, char *input) {
         bright_range.a = atoi(strtok(NULL, " "));
         bright_range.b = atoi(strtok(NULL, " "));
 
-        // // print input date
-        // cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
-        // cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
-        // cout << "(a1,b1): (" << dark_range.a << "," << dark_range.b << ")" << endl;
-        // cout << "(a2,b2): (" << bright_range.a << "," << bright_range.b << ")" << endl;
+        // print input date
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
+        cout << "Threshold: " << threhold << endl;
+        cout << "(a1,b1): (" << dark_range.a << "," << dark_range.b << ")" << endl;
+        cout << "(a2,b2): (" << bright_range.a << "," << bright_range.b << ")" << endl;
 
         // set new pixel value in output image
         for (int i = rect.y; i < rect.sy; i++) {
+            
             for (int j = rect.x; j < rect.sx; j++) {
-                pixel = src.getPixel(i, j);                         // I(i, j)
-                if (pixel < threhold) {
-                    // the pixel I(i, j) belongs to dark part
-                    if (0 <= pixel && pixel <= dark_range.a) {
-                        tgt.setPixel(i, j, 0);                      // I'(i, j) = 0
+                pixel = src.getPixel(i, j);
+                if (pixel < threhold) {                     // background
+                    if (pixel <= dark_range.a) {
+                        tgt.setPixel (i, j, 0);
                     } else if (dark_range.a < pixel && pixel < dark_range.b) {
-                        new_pixel = round(double(pixel * ((dark_range.b - dark_range.a)/double(255 - 0))) + dark_range.a);
-                        tgt.setPixel(i, j, checkValue(new_pixel));  // I'(i, j)
-                    } else if (dark_range.b <= pixel && pixel <= 255) {
-                        tgt.setPixel(i, j, 255);                    // I'(i, j) = 255
+                        new_pixel = pixel * double ((dark_range.b - dark_range.a) / (255.0)) + dark_range.a;
+                        cout << pixel << " " << new_pixel << endl;
+                        tgt.setPixel (i, j, new_pixel);
+                    } else if (dark_range.b <= pixel) {
+                        tgt.setPixel (i, j, 255);
                     }
-                } else if (pixel >= threhold) {
-                    // the pixel I(i, j) belongs to bright part
-                    if (0 <= pixel && pixel <= bright_range.a) {
-                        tgt.setPixel(i, j, 0);                      // I'(i, j) = 0
+                } else if (threhold <= pixel) {             // forground
+                    if (pixel <= bright_range.a) {
+                        tgt.setPixel (i, j, 0);
                     } else if (bright_range.a < pixel && pixel < bright_range.b) {
-                        new_pixel = round(double(pixel * ((bright_range.b - bright_range.a)/double(255 - 0))) + bright_range.a);
-                        tgt.setPixel(i, j, checkValue(new_pixel));  // I'(i, j)
-                    } else if (bright_range.b <= pixel && pixel <= 255) {
-                        tgt.setPixel(i, j, 255);                    // I'(i, j) = 255
+                        new_pixel = pixel * double ((bright_range.b - bright_range.a) / (255.0)) + bright_range.a;
+                        cout << pixel << " " << new_pixel << endl;
+                        tgt.setPixel (i, j, new_pixel);
+                    } else if (bright_range.b <= pixel) {
+                        tgt.setPixel (i, j, 255);
                     }
-                }   
+                }
+
+                // pixel = src.getPixel(i, j);
+                // if (pixel <= threhold) {
+                //     // the pixel I(i, j) belongs to dark part
+                //     if (0 <= pixel && pixel <= dark_range.a) {
+                //         tgt.setPixel(i, j, 0); 
+                //     } else if (dark_range.a < pixel && pixel < dark_range.b) {
+                //         new_pixel = round(double(pixel * ((dark_range.b - dark_range.a)/double(255 - 0))) + dark_range.a);
+                //         tgt.setPixel(i, j, checkValue(new_pixel));
+                //     } else if (dark_range.b <= pixel && pixel <= 255) {
+                //         tgt.setPixel(i, j, 255);
+                //     }
+                // } else if (pixel > threhold) {
+                //     // the pixel I(i, j) belongs to bright part
+                //     if (0 <= pixel && pixel <= bright_range.a) {
+                //         tgt.setPixel(i, j, 0);
+                //     } else if (bright_range.a < pixel && pixel < bright_range.b) {
+                //         new_pixel = round(double(pixel * ((bright_range.b - bright_range.a)/double(255 - 0))) + bright_range.a);
+                //         tgt.setPixel(i, j, checkValue(new_pixel));
+                //     } else if (bright_range.b <= pixel && pixel <= 255) {
+                //         tgt.setPixel(i, j, 255); 
+                //     }
+                // }   
             }
         }
+        
 
         // create and save image histogram
         createHistogram(src, rect);
         createHistogram(tgt, rect);
+        
     }
 }
 
@@ -725,9 +752,16 @@ void createColorHistogram(image &src, roi rect) {
     // number of pixels in RoI
     int total_pixel = (rect.sy - rect.y) * (rect.sx - rect.x);
 
-    plotHistogram(channelR, total_pixel);
-    plotHistogram(channelG, total_pixel);
-    plotHistogram(channelB, total_pixel);
+    // normalize the number of each intensity
+    for (int i; i < channelR.size(); i++) {
+        channelR[i] = round (channelR[i] / total_pixel * 100);
+        channelG[i] = round (channelG[i] / total_pixel * 100);
+        channelB[i] = round (channelB[i] / total_pixel * 100);
+    }
+
+    plotHistogram(channelR);
+    plotHistogram(channelG);
+    plotHistogram(channelB);
 }
 
 void utility::colorStretching(image &src, image &tgt, char *input) {
@@ -1062,7 +1096,6 @@ void utility::edgeDetection(image &src, image &tgt, char *input) {
     int roi_num = atoi(strtok(NULL, " "));  // number of RoI
 
     vector<vector<int>> sobel;              // sobel matrix
-    int distance;
 
     int magnitude;                          // gradiant magnitude
     int dx, dy;                             // derivative in x and y direction
@@ -1084,8 +1117,6 @@ void utility::edgeDetection(image &src, image &tgt, char *input) {
                 {-2, 0, 2},
                 {-1, 0, 1}
             };
-
-            distance = 4;
             
         } else if (window == 5) {
             sobel = {
@@ -1100,8 +1131,6 @@ void utility::edgeDetection(image &src, image &tgt, char *input) {
                 { -8, -10,  0,  10,  8},
                 { -5,  -4,  0,   4,  5}
             };
-
-            distance = 84;
         }
 
         // print input date
@@ -1119,12 +1148,8 @@ void utility::edgeDetection(image &src, image &tgt, char *input) {
                         dx = dx + (src.getPixel(i + wr, j + wc) * sobel[wr][wc]);
                         dy = dy + (src.getPixel(i + wc, j + wr) * sobel[wr][wc]);
                     }
-                    // dx /= distance;
-                    // dy /= distance;
                 }
                 magnitude = sqrt(pow(dx, 2) + pow(dy, 2));
-                // // normlise the strength of gradiant to the range of 0 to 255
-                // magnitude = magnitude / 1428 * 255;
                 tgt.setPixel(i + window/2, j + window/2, magnitude);
             }
         }
@@ -1148,7 +1173,6 @@ void utility::thresholdEdgeDetection(image &src, image &tgt, char *input) {
     int roi_num = atoi(strtok(NULL, " "));  // number of RoI
 
     vector<vector<int>> sobel;              // sobel matrix
-    int distance;
 
     int magnitude;                          // gradiant magnitude
     int dx, dy;                             // derivative in x and y direction
@@ -1172,18 +1196,20 @@ void utility::thresholdEdgeDetection(image &src, image &tgt, char *input) {
                 {-1, 0, 1}
             };
 
-            distance = 4;
 
         } else if (window == 5) {
             sobel = {
+                // {2, 1, 0, -1, -2},
+                // {2, 1, 0, -1, -2},
+                // {4, 2, 0, -2, -4},
+                // {2, 1, 0, -1, -2},
+                // {2, 1, 0, -1, -2}
                 { -5,  -4,  0,   4,  5},
                 { -8, -10,  0,  10,  8},
                 {-10, -20,  0,  20, 10},
                 { -8, -10,  0,  10,  8},
                 { -5,  -4,  0,   4,  5}
             };
-
-            distance = 84;
         }
 
         // print input date
@@ -1202,12 +1228,9 @@ void utility::thresholdEdgeDetection(image &src, image &tgt, char *input) {
                         dx = dx + (src.getPixel(i + wr, j + wc) * sobel[wr][wc]);
                         dy = dy + (src.getPixel(i + wc, j + wr) * sobel[wr][wc]);
                     }
-                    // dx = dx / distance * 255;
-                    // dy = dy / distance * 255;
                 }
                 magnitude = sqrt(pow(dx, 2) + pow(dy, 2));
-                // // normlise the strength of gradiant to the range of 0 to 255
-                // magnitude = magnitude / 1428 * 255;
+
                 if (magnitude <= threshold) {
                     tgt.setPixel(i + window/2, j + window/2, MINRGB);
                 } else if (magnitude > threshold) {
@@ -1264,6 +1287,11 @@ void utility::directionEdgeDetection(image &src, image &tgt, char *input) {
 
         } else if (window == 5) {
             sobel = {
+                // {2, 1, 0, -1, -2},
+                // {2, 1, 0, -1, -2},
+                // {4, 2, 0, -2, -4},
+                // {2, 1, 0, -1, -2},
+                // {2, 1, 0, -1, -2}
                 { -5,  -4,  0,   4,  5},
                 { -8, -10,  0,  10,  8},
                 {-10, -20,  0,  20, 10},
@@ -1325,13 +1353,16 @@ void utility::directionEdgeDetection(image &src, image &tgt, char *input) {
 
 /*-----------------------------------------------------------------------**/
 void utility::colorEdgeDetection(image &src, image &tgt, char *input) {
-    image hsi_src, hsi_tgt;                 // input and output image in HSI
+    // tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
+    copyImage (src, tgt);
+
+    image hsi_src;                 // input and output image in HSI
 
     // convert input image from RGB to HSI
     rgb2hsi (src, hsi_src);
 
-    // create target image (it is empty)
-    copyImage (hsi_src, hsi_tgt);
+    // // create target image (it is empty)
+    // copyImage (hsi_src, hsi_tgt);
 
     // skip 3 first input (input image name, output image name, fuction name)
     strtok(input, " ");
@@ -1366,6 +1397,11 @@ void utility::colorEdgeDetection(image &src, image &tgt, char *input) {
             };
         } else if (window == 5) {
             sobel = {
+                // {2, 1, 0, -1, -2},
+                // {2, 1, 0, -1, -2},
+                // {4, 2, 0, -2, -4},
+                // {2, 1, 0, -1, -2},
+                // {2, 1, 0, -1, -2}
                 { -5,  -4,  0,   4,  5},
                 { -8, -10,  0,  10,  8},
                 {-10, -20,  0,  20, 10},
@@ -1392,13 +1428,15 @@ void utility::colorEdgeDetection(image &src, image &tgt, char *input) {
                 }
                 magnitude = sqrt(pow(dx, 2) + pow(dy, 2));
                 // normlise the strength of gradiant to the range of 0 to 255
-                magnitude = magnitude / 1428 * 255;
+                // magnitude = magnitude / 1428 * 255;
                 if (dx != 0)
                     theta = atan(dy / dx);
-                hsi_tgt.setPixel(i + window/2, j + window/2, BLUE, checkValue(magnitude));
+                tgt.setPixel(i + window/2, j + window/2, RED, checkValue(magnitude));
+                tgt.setPixel(i + window/2, j + window/2, GREEN, 0);
+                tgt.setPixel(i + window/2, j + window/2, BLUE, 0);
             }
         }
     }
 
-    hsi2rgb (hsi_tgt, tgt);
+    // hsi2rgb (hsi_tgt, tgt);
 }

@@ -1,1 +1,1 @@
-baboon.pgm out1.pgm tedge 1 0 0 300 300 3 128
+baboon.pgm out.pgm edge 2 0 0 250 500 3 250 0 250 500 5
