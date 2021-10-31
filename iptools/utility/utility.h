@@ -44,9 +44,10 @@ public:
     static void thresholdStretching(image &src, image &tgt, char *input);
     static void channelStretching(image &src, image &tgt, char *input);
     static void colorStretching(image &src, image &tgt, char *input);
+    static void intensityStretching(image &src, image &tgt, char *input); 
     static void hueStretching(image &src, image &tgt, char *input); 
-    static void hueSaturationStretching(image &src, image &tgt, char *input); 
-    static void hueSaturationIntensityStretching(image &src, image &tgt, char *input);
+    static void saturationStretching(image &src, image &tgt, char *input);
+    static void HSIstretching(image &src, image &tgt, char *input);
     static void edgeDetection(image &src, image &tgt, char *input);
     static void thresholdEdgeDetection(image &src, image &tgt, char *input);
     static void directionEdgeDetection(image &src, image &tgt, char *input);

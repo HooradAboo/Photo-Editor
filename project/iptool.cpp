@@ -103,13 +103,17 @@ int main(int argc, char **argv) {
             /* Hue stretching */
             utility::hueStretching(src, tgt, input);
 
-        } else if (strcmp(pch, "hsstretching") == 0) {
-            /* Hue and saturation stretching */
-            utility::hueSaturationStretching(src, tgt, input);
+        } else if (strcmp(pch, "sstretching") == 0) {
+            /* Hue stretching */
+            utility::saturationStretching(src, tgt, input);
+
+        } else if (strcmp(pch, "istretching") == 0) {
+            /* Hue stretching */
+            utility::intensityStretching(src, tgt, input);
 
         } else if (strcmp(pch, "hsistretching") == 0) {
             /* HSI stretching */
-            utility::hueSaturationIntensityStretching(src, tgt, input);
+            utility::HSIstretching(src, tgt, input);
 
         } else if (strcmp(pch, "edge") == 0) {
              /* Edge detection */

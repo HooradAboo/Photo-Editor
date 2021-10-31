@@ -74,7 +74,7 @@ void rgb2hsi (image &rgb, image &hsi) {
             
             // calculate Saturation
             saturation = 1 - (3 * min(r, min(g, b)));
-            saturation *= 100;
+            saturation *= 255;
 
             // calculate Intensity
             intensity = rgb_sum / (3.0 * 255);
@@ -115,7 +115,7 @@ void hsi2rgb (image &hsi, image &rgb) {
             
             // normalizeing HSI value
             h = hue * M_PI / 180;
-            s = saturation / 100;
+            s = saturation / 255;
             ii = intensity / 100;
 
             // cout << "hsi: (" << h << ", " << s << ", " << ii << ")" << endl;
@@ -804,57 +804,85 @@ void utility::channelStretching(image &src, image &tgt, char *input) {
     roi rect;                               // Region of Intrest
     interval range;                         // range parameter (a, b)
     int roi_num = atoi(strtok(NULL, " "));  // number of RoI
-    channel rgb;                            // the target channel
 
     int pixel, new_pixel;                   // I(i, j) and I'(i, j)
-    char *pch;
+    int rgb;
 
     for (int r = 0; r < min(roi_num, 3); r++){
-        // parse input roi
+        // parse input RoI
         rect.x = atoi(strtok(NULL, " "));
         rect.y = atoi(strtok(NULL, " "));
-        rect.sx = atoi(strtok(NULL, " "));
-        rect.sy = atoi(strtok(NULL, " "));
+        rect.sx = rect.x + atoi(strtok(NULL, " "));
+        rect.sy = rect.y + atoi(strtok(NULL, " "));
 
-        // parse target channel  
-        pch =  strtok(NULL, " ");
-        if (strcmp(pch, "r")) {
-            rgb = RED;
-        } else if (strcmp(pch, "g")) {
-            rgb = GREEN;
-        } else if (strcmp(pch, "b")) {
-            rgb = BLUE;
-        } else {
-            rgb = RED;
-        }
+        // parse stretching channel
+        rgb = atoi(strtok(NULL, " "));
 
         // parse input range
         range.a = atoi(strtok(NULL, " "));
         range.b = atoi(strtok(NULL, " "));
 
-        // // print input data
-        // cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
-        // cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
-        // cout << "(a,b): (" << range.a << "," << range.b << ")" << endl;
+        // find min and max intensity in the ROI
+        interval roi_range;
+        roi_range.a = 255;          // minimum intencity
+        roi_range.b = 0;          // maximum intencity
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+                if (src.getPixel(i, j) != 0 && src.getPixel(i, j) != 255) {
+                    if (src.getPixel(i, j) < roi_range.a) {
+                        roi_range.a = src.getPixel(i, j);
+                    }
+                    if (roi_range.b < src.getPixel(i, j)) {
+                        roi_range.b = src.getPixel(i, j);
+                    }
+                } 
+            }
+        }
+
+        // print input date
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
+        cout << "(" << roi_range.a << "," << roi_range.b << ") --> (" << range.a << "," << range.b << ")" << endl;
 
         // set new pixel value in output image
         for (int i = rect.y; i < rect.sy; i++) {
             for (int j = rect.x; j < rect.sx; j++) {
-                pixel = src.getPixel(i, j);                         // I(a, b)
-                if (0 <= pixel && pixel <= range.a) {
-                    tgt.setPixel(i, j, rgb, 0);                     // I'(a, b) = 0
-                } else if (range.a < pixel && pixel < range.b) {
-                    new_pixel = round(double(pixel * ((range.b - range.a)/double(255 - 0))) + range.a);
-                    tgt.setPixel(i, j, rgb, checkValue(new_pixel)); // I'(a, b)
-                } else if (range.b <= pixel && pixel <= 255) {
-                    tgt.setPixel(i, j, rgb, 255);                   // I'(a, b) = 255
+                if (rgb == 0) {
+                    cout << "RED" << endl;
+                    pixel = src.getPixel(i, j, RED);
+                    if (0 <= pixel && pixel <= range.a) {
+                        tgt.setPixel(i, j, RED, 0);
+                    } else if (range.a < pixel && pixel < range.b) {
+                        new_pixel = round((pixel - roi_range.a) * double ((range.b - range.a)/double(roi_range.b - roi_range.a)) + range.a);
+                        tgt.setPixel(i, j, RED, checkValue(new_pixel));
+                    } else if (range.b <= pixel && pixel <= 255) {
+                        tgt.setPixel(i, j, RED, 255);
+                    }
+                } else if (rgb == 1) {
+                    cout << "GREEN" << endl;
+                    pixel = src.getPixel(i, j, GREEN);
+                    if (0 <= pixel && pixel <= range.a) {
+                        tgt.setPixel(i, j, GREEN, 0);
+                    } else if (range.a < pixel && pixel < range.b) {
+                        new_pixel = round((pixel - roi_range.a) * double ((range.b - range.a)/double(roi_range.b - roi_range.a)) + range.a);
+                        tgt.setPixel(i, j, GREEN, checkValue(new_pixel));
+                    } else if (range.b <= pixel && pixel <= 255) {
+                        tgt.setPixel(i, j, GREEN, 255);
+                    }
+                } else if (rgb == 2) {
+                    cout << "BLUE" << endl;
+                    pixel = src.getPixel(i, j, BLUE);
+                    if (0 <= pixel && pixel <= range.a) {
+                        tgt.setPixel(i, j, BLUE, 0);
+                    } else if (range.a < pixel && pixel < range.b) {
+                        new_pixel = round((pixel - roi_range.a) * double ((range.b - range.a)/double(roi_range.b - roi_range.a)) + range.a);
+                        tgt.setPixel(i, j, BLUE, checkValue(new_pixel));
+                    } else if (range.b <= pixel && pixel <= 255) {
+                        tgt.setPixel(i, j, BLUE, 255);
+                    }
                 }
             }
         }
-
-        // // create and save image histogram
-        // createHistogram(src, rect);
-        // createHistogram(tgt, rect);
     }
 }
 
@@ -972,40 +1000,48 @@ void utility::hueStretching(image &src, image &tgt, char *input) {
         range.a = atoi(strtok(NULL, " "));
         range.b = atoi(strtok(NULL, " "));
 
+        // find min and max intensity in the ROI
+        interval roi_range;
+        roi_range.a = 255;          // minimum intencity
+        roi_range.b = 0;          // maximum intencity
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+                if (src.getPixel(i, j, RED) != 0 && src.getPixel(i, j, RED) != 255) {
+                    if (src.getPixel(i, j, RED) < roi_range.a) {
+                        roi_range.a = src.getPixel(i, j, RED);
+                    }
+                    if (roi_range.b < src.getPixel(i, j, RED)) {
+                        roi_range.b = src.getPixel(i, j, RED);
+                    }
+                } 
+            }
+        }
+
         // print input date
-        // cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
-        // cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
-        // cout << "(a,b): (" << range.a << "," << range.b << ")" << endl;
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
+        cout << "(" << roi_range.a << "," << roi_range.b << ") --> (" << range.a << "," << range.b << ")" << endl;
 
         // set new pixel value in output image
         for (int i = rect.y; i < rect.sy; i++) {
             for (int j = rect.x; j < rect.sx; j++) {
-                // if (tmp.getPixel(i, j, GREEN) > 100)
-                //     cout << tmp.getPixel(i, j, GREEN) << " ";
-                pixel = hsi.getPixel(i, j);                     // I(i, j)
+                pixel = hsi.getPixel(i, j, RED);                     // I(i, j)
                 if (0 <= pixel && pixel <= range.a) {
-                    tmp.setPixel(i, j, 0);                      // I'(i, j) = 0
+                    tmp.setPixel(i, j, RED, 0);                      // I'(i, j) = 0
                 } else if (range.a < pixel && pixel < range.b) {
-                    new_pixel = round(double(pixel * ((range.b - range.a)/double(255 - 0))) + range.a);
-                    tmp.setPixel(i, j, checkValue(new_pixel));  // I'(i, j)
-                } else if (range.b <= pixel && pixel <= 255) {
-                    tmp.setPixel(i, j, 255);                    // I'(i, j) = 255
+                    new_pixel = round((pixel - roi_range.a) * double ((range.b - range.a)/double(roi_range.b - roi_range.a)) + range.a);
+                    tmp.setPixel(i, j, RED, checkValue(new_pixel));  // I'(i, j)
+                } else if (range.b <= pixel && pixel <= 360) {
+                    tmp.setPixel(i, j, RED, 360);                    // I'(i, j) = 255
                 }
             }
         }
-
-        image rgb;
-        hsi2rgb (tmp, rgb);
-        copyImage (rgb, tgt);
-
-        // // create and save image histogram
-        // createHistogram(src, rect);
-        // createHistogram(tgt, rect);
+        hsi2rgb (tmp, tgt);
     }
 }
 
 
-void utility::hueSaturationStretching(image &src, image &tgt, char *input) {
+void utility::saturationStretching(image &src, image &tgt, char *input) {
     // convert RGB to HSI
     image hsi;
     rgb2hsi (src, hsi);
@@ -1020,10 +1056,10 @@ void utility::hueSaturationStretching(image &src, image &tgt, char *input) {
     strtok(NULL, " ");
 
     roi rect;                               // Region of Intrest
-    interval hue_range, saturation_range;   // Hue range parameter (a1, b1)
+    interval range;                         // range parameter (a, b)
     int roi_num = atoi(strtok(NULL, " "));  // number of RoI
 
-    int pixelH, pixelS, new_pixel;          // HI(i, j) and SI(i, j) and I'(i, j)
+    int pixel, new_pixel;                   // I(i, j) and I'(i, j)
 
     for (int r = 0; r < min(roi_num, 3); r++){
         // parse input RoI
@@ -1033,58 +1069,53 @@ void utility::hueSaturationStretching(image &src, image &tgt, char *input) {
         rect.sy = atoi(strtok(NULL, " "));
 
         // parse input range
-        hue_range.a = atoi(strtok(NULL, " "));
-        hue_range.b = atoi(strtok(NULL, " "));
+        range.a = atoi(strtok(NULL, " "));
+        range.b = atoi(strtok(NULL, " "));
 
-        saturation_range.a = atoi(strtok(NULL, " "));
-        saturation_range.b = atoi(strtok(NULL, " "));
+        // find min and max intensity in the ROI
+        interval roi_range;
+        roi_range.a = 255;          // minimum intencity
+        roi_range.b = 0;          // maximum intencity
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+                if (src.getPixel(i, j, GREEN) != 0 && src.getPixel(i, j, GREEN) != 255) {
+                    if (src.getPixel(i, j, GREEN) < roi_range.a) {
+                        roi_range.a = src.getPixel(i, j, GREEN);
+                    }
+                    if (roi_range.b < src.getPixel(i, j, GREEN)) {
+                        roi_range.b = src.getPixel(i, j, GREEN);
+                    }
+                } 
+            }
+        }
 
         // print input date
         cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
         cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
-        cout << "(a1,b1): (" << hue_range.a << "," << hue_range.b << ")" << endl;
-        cout << "(a2,b2): (" << saturation_range.a << "," << saturation_range.b << ")" << endl;
+        cout << "(" << roi_range.a << "," << roi_range.b << ") --> (" << range.a << "," << range.b << ")" << endl;
 
         // set new pixel value in output image
         for (int i = rect.y; i < rect.sy; i++) {
             for (int j = rect.x; j < rect.sx; j++) {
-                // stretch Hue
-                pixelH = src.getPixel(i, j, RED);                       // HI(i,j)
-                if (0 <= pixelH && pixelH <= hue_range.a) {
-                    tgt.setPixel(i, j, RED, 0);                         // HI'(i,j) = 0
-                } else if (hue_range.a < pixelH && pixelH < hue_range.b) {
-                    new_pixel = round(double(pixelH * ((hue_range.b - hue_range.a)/double(255 - 0))) + hue_range.a);
-                    tgt.setPixel(i, j, RED, checkValue(new_pixel));     // HI'(i,j)
-                } else if (hue_range.b <= pixelH && pixelH <= 255) {
-                    tgt.setPixel(i, j, RED, 255);                       // HI'(i,j) = 255
+                // if (tmp.getPixel(i, j, GREEN) > 100)
+                //     cout << tmp.getPixel(i, j, GREEN) << " ";
+                pixel = hsi.getPixel(i, j, GREEN);                     // I(i, j)
+                if (0 <= pixel && pixel <= range.a) {
+                    tmp.setPixel(i, j, GREEN, 0);                      // I'(i, j) = 0
+                } else if (range.a < pixel && pixel < range.b) {
+                    new_pixel = round((pixel - roi_range.a) * double ((range.b - range.a)/double(roi_range.b - roi_range.a)) + range.a);
+                    tmp.setPixel(i, j, GREEN, checkValue(new_pixel));  // I'(i, j)
+                } else if (range.b <= pixel && pixel <= 255) {
+                    tmp.setPixel(i, j, GREEN, 255);                    // I'(i, j) = 255
                 }
-                
-                // stretch Saturation
-                pixelS = src.getPixel(i, j, GREEN);                     // SI(i,j)
-                if (0 <= pixelS && pixelS <= saturation_range.a) {
-                    tgt.setPixel(i, j, GREEN, 0);                       // SI'(i,j) = 0
-                } else if (saturation_range.a < pixelS && pixelS < saturation_range.b) {
-                    new_pixel = round(double(pixelS * ((saturation_range.b - saturation_range.a)/double(255 - 0))) + saturation_range.a);
-                    tgt.setPixel(i, j, GREEN, checkValue(new_pixel));   // SI'(i,j)   
-                } else if (saturation_range.b <= pixelS && pixelS <= 255) {
-                    tgt.setPixel(i, j, GREEN, 255);                     // SI'(i,j) = 255
-                }
-
             }
         }
-
-        image rgb;
-        hsi2rgb (tmp, rgb);
-        copyImage (rgb, tgt);
-
-        // // create and save image histogram
-        // createHistogram(src, rect);
-        // createHistogram(tgt, rect);
+        hsi2rgb (tmp, tgt);
     }
 }
 
 
-void utility::hueSaturationIntensityStretching(image &src, image &tgt, char *input) {
+void utility::intensityStretching(image &src, image &tgt, char *input) {
     // convert RGB to HSI
     image hsi;
     rgb2hsi (src, hsi);
@@ -1098,11 +1129,11 @@ void utility::hueSaturationIntensityStretching(image &src, image &tgt, char *inp
     strtok(NULL, " ");
     strtok(NULL, " ");
 
-    roi rect;                                                       // Region of Intrest
-    interval hue_range, saturation_range, intensity_range;          // Hue range parameter (a1, b1)
-    int roi_num = atoi(strtok(NULL, " "));                          // number of RoI
+    roi rect;                               // Region of Intrest
+    interval range;                         // range parameter (a, b)
+    int roi_num = atoi(strtok(NULL, " "));  // number of RoI
 
-    int pixelH, pixelS, pixelI, new_pixel;                          // HI(i, j) and SI(i, j) and II(i, j) and I'(i, j)
+    int pixel, new_pixel;                   // I(i, j) and I'(i, j)
 
     for (int r = 0; r < min(roi_num, 3); r++){
         // parse input RoI
@@ -1112,68 +1143,234 @@ void utility::hueSaturationIntensityStretching(image &src, image &tgt, char *inp
         rect.sy = atoi(strtok(NULL, " "));
 
         // parse input range
-        hue_range.a = atoi(strtok(NULL, " "));
-        hue_range.b = atoi(strtok(NULL, " "));
+        range.a = atoi(strtok(NULL, " "));
+        range.b = atoi(strtok(NULL, " "));
 
-        saturation_range.a = atoi(strtok(NULL, " "));
-        saturation_range.b = atoi(strtok(NULL, " "));
-
-        intensity_range.a = atoi(strtok(NULL, " "));
-        intensity_range.b = atoi(strtok(NULL, " "));
+        // find min and max intensity in the ROI
+        interval roi_range;
+        roi_range.a = 255;          // minimum intencity
+        roi_range.b = 0;          // maximum intencity
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+                if (src.getPixel(i, j, BLUE) != 0 && src.getPixel(i, j, BLUE) != 255) {
+                    if (src.getPixel(i, j, BLUE) < roi_range.a) {
+                        roi_range.a = src.getPixel(i, j, BLUE);
+                    }
+                    if (roi_range.b < src.getPixel(i, j, BLUE)) {
+                        roi_range.b = src.getPixel(i, j, BLUE);
+                    }
+                } 
+            }
+        }
 
         // print input date
         cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
         cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
-        cout << "(a1,b1): (" << hue_range.a << "," << hue_range.b << ")" << endl;
-        cout << "(a2,b2): (" << saturation_range.a << "," << saturation_range.b << ")" << endl;
-        cout << "(a3,b3): (" << intensity_range.a << "," << intensity_range.b << ")" << endl;
+        cout << "(" << roi_range.a << "," << roi_range.b << ") --> (" << range.a << "," << range.b << ")" << endl;
 
         // set new pixel value in output image
         for (int i = rect.y; i < rect.sy; i++) {
             for (int j = rect.x; j < rect.sx; j++) {
-                // stretch Hue
-                pixelH = src.getPixel(i, j, RED);                       // HI(i,j)
-                if (0 <= pixelH && pixelH <= hue_range.a) {
-                    tgt.setPixel(i, j, RED, 0);                         // HI'(i,j) = 0
-                } else if (hue_range.a < pixelH && pixelH < hue_range.b) {
-                    new_pixel = round(double(pixelH * ((hue_range.b - hue_range.a)/double(255 - 0))) + hue_range.a);
-                    tgt.setPixel(i, j, RED, checkValue(new_pixel));     // HI'(i,j)
-                } else if (hue_range.b <= pixelH && pixelH <= 255) {
-                    tgt.setPixel(i, j, RED, 255);                       // HI'(i,j) = 255
-                }
-                
-                // stretch Saturation
-                pixelS = src.getPixel(i, j, GREEN);                     // SI(i,j)
-                if (0 <= pixelS && pixelS <= saturation_range.a) {
-                    tgt.setPixel(i, j, GREEN, 0);                       // SI'(i,j) = 0
-                } else if (saturation_range.a < pixelS && pixelS < saturation_range.b) {
-                    new_pixel = round(double(pixelS * ((saturation_range.b - saturation_range.a)/double(255 - 0))) + saturation_range.a);
-                    tgt.setPixel(i, j, GREEN, checkValue(new_pixel));   // SI'(i,j)   
-                } else if (saturation_range.b <= pixelS && pixelS <= 255) {
-                    tgt.setPixel(i, j, GREEN, 255);                     // SI'(i,j) = 255
-                }
-
-                // stretch Intensity
-                pixelI = src.getPixel(i, j, BLUE);                     // II(i,j)
-                if (0 <= pixelI && pixelI <= intensity_range.a) {
-                    tgt.setPixel(i, j, BLUE, 0);                       // II'(i,j) = 0
-                } else if (intensity_range.a < pixelI && pixelI < intensity_range.b) {
-                    new_pixel = round(double(pixelI * ((intensity_range.b - intensity_range.a)/double(255 - 0))) + intensity_range.a);
-                    tgt.setPixel(i, j, BLUE, checkValue(new_pixel));   // II'(i,j)   
-                } else if (intensity_range.b <= pixelI && pixelI <= 255) {
-                    tgt.setPixel(i, j, BLUE, 255);                     // II'(i,j) = 255
+                pixel = hsi.getPixel(i, j, BLUE);                     // I(i, j)
+                if (0 <= pixel && pixel <= range.a) {
+                    tmp.setPixel(i, j, BLUE, 0);                      // I'(i, j) = 0
+                } else if (range.a < pixel && pixel < range.b) {
+                    new_pixel = round((pixel - roi_range.a) * double ((range.b - range.a)/double(roi_range.b - roi_range.a)) + range.a);
+                    tmp.setPixel(i, j, BLUE, checkValue(new_pixel));  // I'(i, j)
+                } else if (range.b <= pixel && pixel <= 100) {
+                    tmp.setPixel(i, j, BLUE, 100);                    // I'(i, j) = 255
                 }
             }
         }
-
-        image rgb;
-        hsi2rgb (tmp, rgb);
-        copyImage (rgb, tgt);
-
-        // // create and save image histogram
-        // createHistogram(src, rect);
-        // createHistogram(tgt, rect);
+        hsi2rgb (tmp, tgt);
     }
+}
+
+
+void utility::HSIstretching(image &src, image &tgt, char *input) {
+    // convert RGB to HSI
+    image hsi;
+    rgb2hsi (src, hsi);
+
+    // create target image (it is empty)
+    image tmp;
+    copyImage (hsi, tmp);
+    
+    // skip 3 first input (input image name, output image name, fuction name)
+    strtok(input, " ");
+    strtok(NULL, " ");
+    strtok(NULL, " ");
+
+    roi rect;                               // Region of Intrest
+    interval range;                         // range parameter (a, b)
+    int roi_num = atoi(strtok(NULL, " "));  // number of RoI
+
+    int pixel, new_pixel;                   // I(i, j) and I'(i, j)
+
+    for (int r = 0; r < min(roi_num, 3); r++){
+        // parse input RoI
+        rect.x = atoi(strtok(NULL, " "));
+        rect.y = atoi(strtok(NULL, " "));
+        rect.sx = atoi(strtok(NULL, " "));
+        rect.sy = atoi(strtok(NULL, " "));
+
+        // parse input range
+        range.a = atoi(strtok(NULL, " "));
+        range.b = atoi(strtok(NULL, " "));
+
+        // find min and max intensity in the ROI
+        interval roi_range;
+        roi_range.a = 255;          // minimum intencity
+        roi_range.b = 0;          // maximum intencity
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+                if (src.getPixel(i, j) != 0 && src.getPixel(i, j) != 255) {
+                    if (src.getPixel(i, j) < roi_range.a) {
+                        roi_range.a = src.getPixel(i, j);
+                    }
+                    if (roi_range.b < src.getPixel(i, j)) {
+                        roi_range.b = src.getPixel(i, j);
+                    }
+                } 
+            }
+        }
+
+        // print input date
+        cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+        cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
+        cout << "(" << roi_range.a << "," << roi_range.b << ") --> (" << range.a << "," << range.b << ")" << endl;
+
+        // set new pixel value in output image
+        for (int i = rect.y; i < rect.sy; i++) {
+            for (int j = rect.x; j < rect.sx; j++) {
+                // stretch hue channel
+                pixel = hsi.getPixel(i, j, RED);                     // I(i, j)
+                if (0 <= pixel && pixel <= range.a) {
+                    tmp.setPixel(i, j, RED, 0);                      // I'(i, j) = 0
+                } else if (range.a < pixel && pixel < range.b) {
+                    new_pixel = round((pixel - roi_range.a) * double ((range.b - range.a)/double(roi_range.b - roi_range.a)) + range.a);
+                    tmp.setPixel(i, j, RED, checkValue(new_pixel));  // I'(i, j)
+                } else if (range.b <= pixel && pixel <= 255) {
+                    tmp.setPixel(i, j, RED, 255);                    // I'(i, j) = 255
+                }
+
+                // stretch saturation channel
+                pixel = hsi.getPixel(i, j, GREEN);                     // I(i, j)
+                if (0 <= pixel && pixel <= range.a) {
+                    tmp.setPixel(i, j, GREEN, 0);                      // I'(i, j) = 0
+                } else if (range.a < pixel && pixel < range.b) {
+                    new_pixel = round((pixel - roi_range.a) * double ((range.b - range.a)/double(roi_range.b - roi_range.a)) + range.a);
+                    tmp.setPixel(i, j, GREEN, checkValue(new_pixel));  // I'(i, j)
+                } else if (range.b <= pixel && pixel <= 255) {
+                    tmp.setPixel(i, j, GREEN, 255);                    // I'(i, j) = 255
+                }
+
+                // stretch intensity channel
+                pixel = hsi.getPixel(i, j, BLUE);                     // I(i, j)
+                if (0 <= pixel && pixel <= range.a) {
+                    tmp.setPixel(i, j, BLUE, 0);                      // I'(i, j) = 0
+                } else if (range.a < pixel && pixel < range.b) {
+                    new_pixel = round((pixel - roi_range.a) * double ((range.b - range.a)/double(roi_range.b - roi_range.a)) + range.a);
+                    tmp.setPixel(i, j, BLUE, checkValue(new_pixel));  // I'(i, j)
+                } else if (range.b <= pixel && pixel <= 255) {
+                    tmp.setPixel(i, j, BLUE, 255);                    // I'(i, j) = 255
+                }
+            }
+        }
+        hsi2rgb (tmp, tgt);
+    }
+
+
+
+    // // convert RGB to HSI
+    // image hsi;
+    // rgb2hsi (src, hsi);
+
+    // // create target image (it is empty)
+    // image tmp;
+    // copyImage (hsi, tmp);
+    
+    // // skip 3 first input (input image name, output image name, fuction name)
+    // strtok(input, " ");
+    // strtok(NULL, " ");
+    // strtok(NULL, " ");
+
+    // roi rect;                                                       // Region of Intrest
+    // interval hue_range, saturation_range, intensity_range;          // Hue range parameter (a1, b1)
+    // int roi_num = atoi(strtok(NULL, " "));                          // number of RoI
+
+    // int pixelH, pixelS, pixelI, new_pixel;                          // HI(i, j) and SI(i, j) and II(i, j) and I'(i, j)
+
+    // for (int r = 0; r < min(roi_num, 3); r++){
+    //     // parse input RoI
+    //     rect.x = atoi(strtok(NULL, " "));
+    //     rect.y = atoi(strtok(NULL, " "));
+    //     rect.sx = atoi(strtok(NULL, " "));
+    //     rect.sy = atoi(strtok(NULL, " "));
+
+    //     // parse input range
+    //     hue_range.a = atoi(strtok(NULL, " "));
+    //     hue_range.b = atoi(strtok(NULL, " "));
+
+    //     saturation_range.a = atoi(strtok(NULL, " "));
+    //     saturation_range.b = atoi(strtok(NULL, " "));
+
+    //     intensity_range.a = atoi(strtok(NULL, " "));
+    //     intensity_range.b = atoi(strtok(NULL, " "));
+
+    //     // print input date
+    //     cout << "(X,Y): (" << rect.x << "," << rect.y << ")" << endl;
+    //     cout << "(SX,SY): (" << rect.sx << "," << rect.sy << ")" << endl;
+    //     cout << "(a1,b1): (" << hue_range.a << "," << hue_range.b << ")" << endl;
+    //     cout << "(a2,b2): (" << saturation_range.a << "," << saturation_range.b << ")" << endl;
+    //     cout << "(a3,b3): (" << intensity_range.a << "," << intensity_range.b << ")" << endl;
+
+    //     // set new pixel value in output image
+    //     for (int i = rect.y; i < rect.sy; i++) {
+    //         for (int j = rect.x; j < rect.sx; j++) {
+    //             // stretch Hue
+    //             pixelH = src.getPixel(i, j, RED);                       // HI(i,j)
+    //             if (0 <= pixelH && pixelH <= hue_range.a) {
+    //                 tgt.setPixel(i, j, RED, 0);                         // HI'(i,j) = 0
+    //             } else if (hue_range.a < pixelH && pixelH < hue_range.b) {
+    //                 new_pixel = round(double(pixelH * ((hue_range.b - hue_range.a)/double(255 - 0))) + hue_range.a);
+    //                 tgt.setPixel(i, j, RED, checkValue(new_pixel));     // HI'(i,j)
+    //             } else if (hue_range.b <= pixelH && pixelH <= 255) {
+    //                 tgt.setPixel(i, j, RED, 255);                       // HI'(i,j) = 255
+    //             }
+                
+    //             // stretch Saturation
+    //             pixelS = src.getPixel(i, j, GREEN);                     // SI(i,j)
+    //             if (0 <= pixelS && pixelS <= saturation_range.a) {
+    //                 tgt.setPixel(i, j, GREEN, 0);                       // SI'(i,j) = 0
+    //             } else if (saturation_range.a < pixelS && pixelS < saturation_range.b) {
+    //                 new_pixel = round(double(pixelS * ((saturation_range.b - saturation_range.a)/double(255 - 0))) + saturation_range.a);
+    //                 tgt.setPixel(i, j, GREEN, checkValue(new_pixel));   // SI'(i,j)   
+    //             } else if (saturation_range.b <= pixelS && pixelS <= 255) {
+    //                 tgt.setPixel(i, j, GREEN, 255);                     // SI'(i,j) = 255
+    //             }
+
+    //             // stretch Intensity
+    //             pixelI = src.getPixel(i, j, BLUE);                     // II(i,j)
+    //             if (0 <= pixelI && pixelI <= intensity_range.a) {
+    //                 tgt.setPixel(i, j, BLUE, 0);                       // II'(i,j) = 0
+    //             } else if (intensity_range.a < pixelI && pixelI < intensity_range.b) {
+    //                 new_pixel = round(double(pixelI * ((intensity_range.b - intensity_range.a)/double(255 - 0))) + intensity_range.a);
+    //                 tgt.setPixel(i, j, BLUE, checkValue(new_pixel));   // II'(i,j)   
+    //             } else if (intensity_range.b <= pixelI && pixelI <= 255) {
+    //                 tgt.setPixel(i, j, BLUE, 255);                     // II'(i,j) = 255
+    //             }
+    //         }
+    //     }
+
+    //     image rgb;
+    //     hsi2rgb (tmp, rgb);
+    //     copyImage (rgb, tgt);
+
+    //     // // create and save image histogram
+    //     // createHistogram(src, rect);
+    //     // createHistogram(tgt, rect);
+    // }
 }
 
 
@@ -1192,8 +1389,9 @@ void utility::edgeDetection(image &src, image &tgt, char *input) {
     int roi_num = atoi(strtok(NULL, " "));  // number of RoI
 
     vector<vector<int>> sobel;              // sobel matrix
+    int distance;
 
-    int magnitude;                          // gradiant magnitude
+    double magnitude;                          // gradiant magnitude
     int dx, dy;                             // derivative in x and y direction
 
     for (int r = 0; r < min(roi_num, 3); r++){
@@ -1213,20 +1411,19 @@ void utility::edgeDetection(image &src, image &tgt, char *input) {
                 {-2, 0, 2},
                 {-1, 0, 1}
             };
+
+            distance = 1;
             
         } else if (window == 5) {
             sobel = {
-                // {2, 1, 0, -1, -2},
-                // {2, 1, 0, -1, -2},
-                // {4, 2, 0, -2, -4},
-                // {2, 1, 0, -1, -2},
-                // {2, 1, 0, -1, -2}
                 { -5,  -4,  0,   4,  5},
                 { -8, -10,  0,  10,  8},
                 {-10, -20,  0,  20, 10},
                 { -8, -10,  0,  10,  8},
                 { -5,  -4,  0,   4,  5}
             };
+
+            distance = 8000 / 255;
         }
 
         // print input date
@@ -1246,6 +1443,7 @@ void utility::edgeDetection(image &src, image &tgt, char *input) {
                     }
                 }
                 magnitude = sqrt(pow(dx, 2) + pow(dy, 2));
+                magnitude = int (magnitude / distance);
                 tgt.setPixel(i + window/2, j + window/2, magnitude);
             }
         }
@@ -1269,6 +1467,7 @@ void utility::thresholdEdgeDetection(image &src, image &tgt, char *input) {
     int roi_num = atoi(strtok(NULL, " "));  // number of RoI
 
     vector<vector<int>> sobel;              // sobel matrix
+    int distance;
 
     int magnitude;                          // gradiant magnitude
     int dx, dy;                             // derivative in x and y direction
@@ -1292,20 +1491,18 @@ void utility::thresholdEdgeDetection(image &src, image &tgt, char *input) {
                 {-1, 0, 1}
             };
 
+            distance = 1;
 
         } else if (window == 5) {
             sobel = {
-                // {2, 1, 0, -1, -2},
-                // {2, 1, 0, -1, -2},
-                // {4, 2, 0, -2, -4},
-                // {2, 1, 0, -1, -2},
-                // {2, 1, 0, -1, -2}
                 { -5,  -4,  0,   4,  5},
                 { -8, -10,  0,  10,  8},
                 {-10, -20,  0,  20, 10},
                 { -8, -10,  0,  10,  8},
                 { -5,  -4,  0,   4,  5}
             };
+
+            distance = 8000 / 255;
         }
 
         // print input date
@@ -1326,6 +1523,7 @@ void utility::thresholdEdgeDetection(image &src, image &tgt, char *input) {
                     }
                 }
                 magnitude = sqrt(pow(dx, 2) + pow(dy, 2));
+                magnitude = int (magnitude / distance);
 
                 if (magnitude <= threshold) {
                     tgt.setPixel(i + window/2, j + window/2, MINRGB);
@@ -1379,15 +1577,10 @@ void utility::directionEdgeDetection(image &src, image &tgt, char *input) {
                 {-1, 0, 1}
             };
 
-            distance = 4;
+            distance = 1;
 
         } else if (window == 5) {
             sobel = {
-                // {2, 1, 0, -1, -2},
-                // {2, 1, 0, -1, -2},
-                // {4, 2, 0, -2, -4},
-                // {2, 1, 0, -1, -2},
-                // {2, 1, 0, -1, -2}
                 { -5,  -4,  0,   4,  5},
                 { -8, -10,  0,  10,  8},
                 {-10, -20,  0,  20, 10},
@@ -1395,7 +1588,7 @@ void utility::directionEdgeDetection(image &src, image &tgt, char *input) {
                 { -5,  -4,  0,   4,  5}
             };
 
-            distance = 84;
+            distance = 8000 / 255;
         }
 
         // print input date
@@ -1417,6 +1610,8 @@ void utility::directionEdgeDetection(image &src, image &tgt, char *input) {
                     }
                 }
                 magnitude = sqrt(pow(dx, 2) + pow(dy, 2));
+                magnitude = int (magnitude / distance);
+
                 if (dx != 0) {
                     theta = atan (dy/dx);
                     if (theta < 0) {
@@ -1426,7 +1621,9 @@ void utility::directionEdgeDetection(image &src, image &tgt, char *input) {
                     theta = M_PI / 2;
                 theta = round (theta * 180 / M_PI);
                 // cout << theta << endl;
-                if (theta <= 10 && 350 <= theta) {    
+
+                if (theta <= 10 && 350 <= theta) {  
+                    cout << theta << endl;  
                     if (magnitude <= threshold) {
                         tgt.setPixel(i + window/2, j + window/2, MINRGB);
                     } else if (magnitude > threshold) {
@@ -1449,16 +1646,12 @@ void utility::directionEdgeDetection(image &src, image &tgt, char *input) {
 
 /*-----------------------------------------------------------------------**/
 void utility::colorEdgeDetection(image &src, image &tgt, char *input) {
-    // tgt.resize(src.getNumberOfRows(), src.getNumberOfColumns());
     copyImage (src, tgt);
 
     image hsi_src;                 // input and output image in HSI
 
     // convert input image from RGB to HSI
     rgb2hsi (src, hsi_src);
-
-    // // create target image (it is empty)
-    // copyImage (hsi_src, hsi_tgt);
 
     // skip 3 first input (input image name, output image name, fuction name)
     strtok(input, " ");
@@ -1470,6 +1663,7 @@ void utility::colorEdgeDetection(image &src, image &tgt, char *input) {
     int roi_num = atoi(strtok(NULL, " "));  // number of RoI
 
     vector<vector<int>> sobel;              // sobel matrix
+    int distance;
 
     int magnitude, theta;                   // gradiant magnitude and direction
     int dx, dy;                             // derivative in x and y direction
@@ -1491,19 +1685,19 @@ void utility::colorEdgeDetection(image &src, image &tgt, char *input) {
                 {-2, 0, 2},
                 {-1, 0, 1}
             };
+
+            distance = 1;
+
         } else if (window == 5) {
             sobel = {
-                // {2, 1, 0, -1, -2},
-                // {2, 1, 0, -1, -2},
-                // {4, 2, 0, -2, -4},
-                // {2, 1, 0, -1, -2},
-                // {2, 1, 0, -1, -2}
                 { -5,  -4,  0,   4,  5},
                 { -8, -10,  0,  10,  8},
                 {-10, -20,  0,  20, 10},
                 { -8, -10,  0,  10,  8},
                 { -5,  -4,  0,   4,  5}
             };
+
+            distance = 8000 / 255;
         }
 
         // print input date
@@ -1523,8 +1717,8 @@ void utility::colorEdgeDetection(image &src, image &tgt, char *input) {
                     }
                 }
                 magnitude = sqrt(pow(dx, 2) + pow(dy, 2));
-                // normlise the strength of gradiant to the range of 0 to 255
-                // magnitude = magnitude / 1428 * 255;
+                magnitude = int (magnitude / distance);
+
                 if (dx != 0)
                     theta = atan(dy / dx);
                 tgt.setPixel(i + window/2, j + window/2, RED, checkValue(magnitude));
@@ -1533,6 +1727,4 @@ void utility::colorEdgeDetection(image &src, image &tgt, char *input) {
             }
         }
     }
-
-    // hsi2rgb (hsi_tgt, tgt);
 }

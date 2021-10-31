@@ -1,1 +1,4 @@
-baboon.pgm 003_dualst_test.pgm tstretching 3 20 20 100 120 100 50 75 150 215 150 200 50 85 75 25 50 90 145 250 300 75 25 150 50 75 100 175
+baboon.pgm baboon_edge.pgm edge 2 0 0 100 400 3 300 150 200 350 5 
+baboon.pgm baboon_tedge.pgm tedge 2 0 0 100 400 3 190 300 120 200 350 5 120
+baboon.ppm baboon_cedge.ppm cedge 2 0 0 100 400 3 300 150 200 350 5 
+wheel.pgm wheel_diredge.pgm diredge 1 0 0 300 295 5 50
