@@ -1,4 +1,5 @@
-baboon.ppm baboon_color_sobel.ppm csobel 2 0 0 100 400 3 300 150 200 350 5
-baboon.ppm baboon_color_canny.ppm ccanny 2 0 0 100 400 3 300 150 200 350 5
-baboon.ppm baboon_color_eq.ppm cequalization 2 0 0 100 400 300 150 200 350
-coin.pgm coin_otsu.pgm otsu 1 0 0 500 320
+garden.pgm garden_fft.pgm fourier 1
+garden.pgm garden_low.pgm lowpass 1 0 0 800 532 100
+garden.pgm garden_high.pgm highpass 1 0 0 800 532 200
+garden.pgm garden_band.pgm bandpass 1 0 0 800 532 50 175
+garden.pgm garden_sharp.pgm usm 1 0 0 800 532 2

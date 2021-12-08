@@ -99,6 +99,14 @@ int main(int argc, char **argv) {
             /* RGB image histogram stretching */
             utility::colorStretching(src, tgt, input);
 
+        } else if (strcmp(pch, "hsi") == 0) {
+            /* Convert RGB to HSI */
+            utility::HSI(src, tgt);
+
+        } else if (strcmp(pch, "rgb") == 0) {
+            /* Convert HSI to RGB  */
+            utility::RGB(src, tgt);
+
         } else if (strcmp(pch, "hstretching") == 0) {
             /* Hue stretching */
             utility::hueStretching(src, tgt, input);
